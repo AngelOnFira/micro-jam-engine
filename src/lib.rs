@@ -1,10 +1,29 @@
 use std::marker::PhantomData;
+use wasm_bindgen::prelude::*;
+
+mod utils;
+
+// When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
+// allocator.
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[wasm_bindgen]
+extern "C" {
+    fn alert(s: &str);
+}
+
+#[wasm_bindgen]
+pub fn greet() {
+    alert("Hello, micro-jam!");
+}
 
 pub trait Game: Sized {
     type SaveData: Default;
-    
+
     fn init() -> Self;
-    
+
     fn tick(&mut self, ctx: &mut Ctx<Self>);
 }
 
@@ -42,6 +61,10 @@ pub struct Save<S> {
 }
 
 impl<S> Save<S> {
-    pub fn read(&mut self) -> S { todo!() }
-    pub fn write(&mut self, save: S) { todo!() }
+    pub fn read(&mut self) -> S {
+        todo!()
+    }
+    pub fn write(&mut self, save: S) {
+        todo!()
+    }
 }

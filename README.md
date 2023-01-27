@@ -1,4 +1,19 @@
 # Micro Jam Engine (better name tbd)
 
-You can start the web build with `trunk serve`, and the native build with `cargo
-run`.
+Navigate to an example like
+
+```
+cd examples/color
+```
+
+Run one of the examples on the web with
+
+```
+trunk serve --release
+```
+
+or natively with
+
+```
+cargo run --release
+```

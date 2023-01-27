@@ -1,5 +1,5 @@
 [package]
-name = "micro-jam-engine"
+name = "micro_jam_engine"
 version = "0.1.0"
 edition = "2021"
 
@@ -15,6 +15,7 @@ instant = "0.1.12"
 rayon = "1.6.1"
 softbuffer = { git = "https://github.com/rust-windowing/softbuffer", version = "0.2.0" }
 winit = "0.27.5"
+vek = "0.15"
 
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires

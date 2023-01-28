@@ -1,7 +1,11 @@
 use input::{InputEvent};
 use std::rc::Rc;
 use std::sync::RwLock;
-use std::{marker::PhantomData, time::Instant};
+use std::{
+    marker::PhantomData,
+    time::Instant,
+};
+use graphics::Graphics;
 use wasm_bindgen::prelude::*;
 use winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -13,6 +17,7 @@ use vek::*;
 
 pub mod input;
 mod utils;
+mod graphics;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -50,13 +55,12 @@ pub struct Console<'tick, G: Game> {
     pub save: Save<G::SaveData>,
 }
 
-pub struct Graphics<'tick> {
-    pub size: Vec2<usize>,
-    pub framebuffer: &'tick mut [u32],
-}
+pub struct Input;
 
-impl<'tick> Graphics<'tick> {
-    // TODO: Methods for drawing shapes, sprites, perhaps even triangles, as well as getting access to the framebuffer
+impl Input {
+    //pub fn key(&self, key: Key) -> KeyState { todo!() }
+    //pub fn key_presses(&self) -> impl Iterator<Item = Key>;
+    //pub fn axis(&self, axis: Axis) -> AxisState { todo!() }
 }
 
 pub struct Audio;

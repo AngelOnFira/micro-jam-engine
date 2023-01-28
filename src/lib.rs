@@ -1,7 +1,7 @@
-use std::{
-    marker::PhantomData,
-    time::Instant,
-};
+use input::Input;
+use std::rc::Rc;
+use std::sync::RwLock;
+use std::{marker::PhantomData, time::Instant};
 use wasm_bindgen::prelude::*;
 use winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -11,6 +11,7 @@ pub use vek;
 
 use vek::*;
 
+mod input;
 mod utils;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -37,22 +38,16 @@ pub trait Game: Sized + 'static {
 
     fn tick(&mut self, dt: f32, console: &mut Console<Self>);
 
-    fn run() { run_with::<Self>() }
+    fn run() {
+        run_with::<Self>()
+    }
 }
 
 pub struct Console<'tick, G: Game> {
-    pub input: Input,
+    pub input: Rc<RwLock<Input>>,
     pub graphics: Graphics<'tick>,
     pub audio: Audio,
     pub save: Save<G::SaveData>,
-}
-
-pub struct Input;
-
-impl Input {
-    //pub fn key(&self, key: Key) -> KeyState { todo!() }
-    //pub fn key_presses(&self) -> impl Iterator<Item = Key>;
-    //pub fn axis(&self, axis: Axis) -> AxisState { todo!() }
 }
 
 pub struct Graphics<'tick> {
@@ -114,8 +109,14 @@ fn run_with<G: Game>() {
 
     let mut time = instant::Instant::now();
 
+    let game_input = Rc::new(RwLock::new(Input {
+        pressed_keys: [false; 256],
+    }));
+
+    let game_input_clone = game_input.clone();
+
     let mut game = G::init(&mut Console {
-        input: Input,
+        input: game_input_clone,
         graphics: Graphics {
             size: Vec2::new(window_size.width as usize, window_size.height as usize),
             framebuffer: &mut framebuffer,
@@ -125,6 +126,8 @@ fn run_with<G: Game>() {
             phantom: PhantomData,
         },
     });
+
+    let game_input_clone = game_input.clone();
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
@@ -168,28 +171,52 @@ fn run_with<G: Game>() {
             //     flag = !flag;
             //     window.request_redraw();
             // }
+            /// Handle tracking of which keys are pressed
+            Event::WindowEvent {
+                event:
+                    WindowEvent::KeyboardInput {
+                        input:
+                            winit::event::KeyboardInput {
+                                virtual_keycode: Some(keycode),
+                                state,
+                                ..
+                            },
+                        ..
+                    },
+                ..
+            } => match state {
+                winit::event::ElementState::Pressed => {
+                    game_input.write().unwrap().pressed_keys[keycode as usize] = true;
+                }
+                winit::event::ElementState::Released => {
+                    game_input.write().unwrap().pressed_keys[keycode as usize] = false;
+                }
+            },
             Event::MainEventsCleared => {
                 let new_time = instant::Instant::now();
 
-                game.tick(new_time.duration_since(time).as_secs_f32(), &mut Console {
-                    input: Input,
-                    graphics: Graphics {
-                        size: {
-                            let sz = window.inner_size();
-                            Vec2::new(sz.width as usize, sz.height as usize)
+                game.tick(
+                    new_time.duration_since(time).as_secs_f32(),
+                    &mut Console {
+                        input: game_input_clone,
+                        graphics: Graphics {
+                            size: {
+                                let sz = window.inner_size();
+                                Vec2::new(sz.width as usize, sz.height as usize)
+                            },
+                            framebuffer: &mut framebuffer,
                         },
-                        framebuffer: &mut framebuffer,
+                        audio: Audio,
+                        save: Save {
+                            phantom: PhantomData,
+                        },
                     },
-                    audio: Audio,
-                    save: Save {
-                        phantom: PhantomData,
-                    },
-                });
+                );
 
                 window.request_redraw();
 
                 time = new_time;
-            },
+            }
             _ => {}
         }
     });

@@ -1,4 +1,4 @@
-use input::Input;
+use input::{InputEvent};
 use std::rc::Rc;
 use std::sync::RwLock;
 use std::{marker::PhantomData, time::Instant};
@@ -44,7 +44,7 @@ pub trait Game: Sized + 'static {
 }
 
 pub struct Console<'tick, G: Game> {
-    pub input: Rc<RwLock<Input>>,
+    pub input: Vec<InputEvent>,
     pub graphics: Graphics<'tick>,
     pub audio: Audio,
     pub save: Save<G::SaveData>,
@@ -109,14 +109,8 @@ fn run_with<G: Game>() {
 
     let mut time = instant::Instant::now();
 
-    let game_input = Rc::new(RwLock::new(Input {
-        pressed_keys: [false; 256],
-    }));
-
-    let game_input_clone = game_input.clone();
-
     let mut game = G::init(&mut Console {
-        input: game_input_clone,
+        input: Vec::new(),
         graphics: Graphics {
             size: Vec2::new(window_size.width as usize, window_size.height as usize),
             framebuffer: &mut framebuffer,
@@ -127,10 +121,10 @@ fn run_with<G: Game>() {
         },
     });
 
-    let game_input_clone = game_input.clone();
-
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
+
+        let mut input_queue = Vec::new();
 
         match event {
             Event::RedrawRequested(window_id) if window_id == window.id() => {
@@ -171,34 +165,27 @@ fn run_with<G: Game>() {
             //     flag = !flag;
             //     window.request_redraw();
             // }
-            /// Handle tracking of which keys are pressed
+            // Push any keyboard input events into the input queue
             Event::WindowEvent {
-                event:
-                    WindowEvent::KeyboardInput {
-                        input:
-                            winit::event::KeyboardInput {
-                                virtual_keycode: Some(keycode),
-                                state,
-                                ..
-                            },
-                        ..
-                    },
+                event: WindowEvent::KeyboardInput { input, .. },
                 ..
-            } => match state {
-                winit::event::ElementState::Pressed => {
-                    game_input.write().unwrap().pressed_keys[keycode as usize] = true;
-                }
-                winit::event::ElementState::Released => {
-                    game_input.write().unwrap().pressed_keys[keycode as usize] = false;
-                }
-            },
+            } => {
+                input_queue.push(InputEvent::KeyboardInput(input));
+            }
+            // Push any mouse movement events into the input queue
+            Event::WindowEvent {
+                event: WindowEvent::CursorMoved { position, .. },
+                ..
+            } => {
+                input_queue.push(InputEvent::CursorMoved(position));
+            }
             Event::MainEventsCleared => {
                 let new_time = instant::Instant::now();
 
                 game.tick(
                     new_time.duration_since(time).as_secs_f32(),
                     &mut Console {
-                        input: game_input_clone,
+                        input: input_queue.clone(),
                         graphics: Graphics {
                             size: {
                                 let sz = window.inner_size();
@@ -212,6 +199,9 @@ fn run_with<G: Game>() {
                         },
                     },
                 );
+
+                // Reset the input queue
+                input_queue.clear();
 
                 window.request_redraw();
 

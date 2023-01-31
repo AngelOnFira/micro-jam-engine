@@ -1,4 +1,4 @@
-use micro_jam_engine::{vek::*, Console, Game};
+use micro_jam_engine::{input::InputEvent, vek::*, Console, Game};
 
 /// This will be an implementation of pong. It will just be drawn with
 /// rectangles, and will use simple collision detection to determine if the ball
@@ -43,12 +43,20 @@ impl Game for Pong {
     fn tick(&mut self, dt: f32, console: &mut Console<Self>) {
         self.time += dt;
 
-        // Update the player's paddle
-        if console.input.key(Key::W).is_down() {
-            self.player.paddle_pos += 1.0 * dt;
-        }
-        if console.input.key(Key::S).is_down() {
-            self.player.paddle_pos -= 1.0 * dt;
+        // Handle all inputs
+        for input in console.input {
+            match input {
+                InputEvent::KeyboardInput(input) => match input.scancode {
+                    17 => {
+                        self.player.paddle_pos += 1.0 * dt;
+                    }
+                    31 => {
+                        self.player.paddle_pos -= 1.0 * dt;
+                    }
+                    _ => {}
+                },
+                _ => {}
+            }
         }
 
         // Update the AI's paddle
@@ -152,5 +160,5 @@ impl Game for Pong {
 }
 
 fn main() {
-    Color::run();
+    Pong::run();
 }

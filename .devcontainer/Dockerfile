@@ -9,19 +9,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
         fontconfig \
         libfontconfig1-dev \
         pkg-config
+
+USER vscode
+
+# Install toolchain
+RUN rustup target add wasm32-unknown-unknown \
+    rustup default nightly
  
 # Install trunk and mdbook
 RUN cargo install --locked cargo-quickinstall \
     && cargo quickinstall trunk \
     && cargo quickinstall mdbook
-
-# This doesn't work for now
-# # Copy the project in and cargo build
-# COPY . /workspace
-
-# RUN chown -R vscode:vscode /workspace
-
-# USER vscode
-
-# RUN cd /workspace \
-#     && cargo build

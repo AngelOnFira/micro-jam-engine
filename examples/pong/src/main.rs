@@ -1,5 +1,8 @@
 use micro_jam_engine::{
-    input::InputEvent, prelude::winit::event::VirtualKeyCode, vek::*, Console, Game,
+    input::InputEvent,
+    prelude::winit::event::VirtualKeyCode,
+    vek::{num_traits::clamp, *},
+    Console, Game,
 };
 
 /// This will be an implementation of pong. It will just be drawn with
@@ -53,8 +56,6 @@ impl Game for Pong {
 
         let dt = dt * GAME_SPEED;
 
-        console.graphics.clear(0x000000);
-
         // All numbers are in pixels, based on the size of the screen
 
         // Handle all inputs
@@ -76,6 +77,13 @@ impl Game for Pong {
         {
             self.player.paddle_pos += 500.0 * dt;
         }
+
+        // Make sure the paddle doesn't go too high
+        self.player.paddle_pos = clamp(
+            self.player.paddle_pos,
+            50.0,
+            console.graphics.height() - 200.0 - 50.0,
+        );
 
         // Set up the rectangles for the ball and paddles
         let ball_rect = Rect::new(self.ball_pos.x, self.ball_pos.y, 50.0, 50.0);
@@ -112,23 +120,42 @@ impl Game for Pong {
         }
 
         // Check if the ball has hit the top or bottom of the screen
-        if self.ball_pos.y < 0.0 || self.ball_pos.y > console.graphics.size.y as f32 {
+        if self.ball_pos.y < 50.0 || self.ball_pos.y > console.graphics.size.y as f32 - 50.0 - 50.0
+        {
             self.ball_vel.y *= -1.0;
         }
 
         // Check if the ball has hit the left or right of the screen
-        if self.ball_pos.x < 0.0 || self.ball_pos.x > console.graphics.size.x as f32 {
+        if self.ball_pos.x < 50.0 || self.ball_pos.x > console.graphics.size.x as f32 - 50.0 - 50.0
+        {
             self.ball_vel.x *= -1.0;
         }
 
+        // Clear the screen
+        console.graphics.clear(0x000000);
+
+        // Draw the arena
+        console.graphics.draw_rect(
+            Rect::new(
+                50.0,
+                50.0,
+                console.graphics.size.x as f32 - 100.0,
+                console.graphics.size.y as f32 - 100.0,
+            ),
+            0x0000FF,
+            false,
+        );
+
         // Draw the ball
-        console.graphics.draw_rect(ball_rect, 0xFFFFFF);
+        console.graphics.draw_rect(ball_rect, 0xFFFFFF, true);
 
         // Draw the player's paddle
-        console.graphics.draw_rect(player_paddle_rect, 0x00FF00);
+        console
+            .graphics
+            .draw_rect(player_paddle_rect, 0x00FF00, false);
 
         // Draw the AI's paddle
-        console.graphics.draw_rect(ai_paddle_rect, 0xFF0000);
+        console.graphics.draw_rect(ai_paddle_rect, 0xFF0000, false);
 
         // Draw the score
     }

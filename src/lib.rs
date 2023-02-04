@@ -1,11 +1,8 @@
-use input::{InputEvent};
+use graphics::Graphics;
+use input::InputEvent;
 use std::rc::Rc;
 use std::sync::RwLock;
-use std::{
-    marker::PhantomData,
-    time::Instant,
-};
-use graphics::Graphics;
+use std::{marker::PhantomData, time::Instant};
 use wasm_bindgen::prelude::*;
 use winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
@@ -15,9 +12,9 @@ pub use vek;
 
 use vek::*;
 
+mod graphics;
 pub mod input;
 mod utils;
-mod graphics;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.

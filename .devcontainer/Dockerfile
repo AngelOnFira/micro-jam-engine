@@ -13,9 +13,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 USER vscode
 
 # Install toolchain
-RUN rustup target add wasm32-unknown-unknown \
-    rustup default nightly
- 
+RUN rustup default nightly \
+    && rustup target add wasm32-unknown-unknown \
+    && rustup component add clippy rustfmt
+
 # Install trunk and mdbook
 RUN cargo install --locked cargo-quickinstall \
     && cargo quickinstall trunk \

@@ -9,6 +9,13 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = ["console_error_panic_hook"]
 
+[workspace]
+members = [
+    "examples/pong",
+    "examples/shapes",
+    "examples/color",
+]
+
 [dependencies]
 wasm-bindgen = "0.2.63"
 instant = "0.1.12"

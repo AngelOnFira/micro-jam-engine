@@ -1,4 +1,5 @@
-use input::{InputEvent};
+use graphics::Graphics;
+use input::InputEvent;
 use std::rc::Rc;
 use std::sync::RwLock;
 use std::{marker::PhantomData, time::Instant};
@@ -11,6 +12,7 @@ pub use vek;
 
 use vek::*;
 
+mod graphics;
 pub mod input;
 mod utils;
 
@@ -50,13 +52,12 @@ pub struct Console<'tick, G: Game> {
     pub save: Save<G::SaveData>,
 }
 
-pub struct Graphics<'tick> {
-    pub size: Vec2<usize>,
-    pub framebuffer: &'tick mut [u32],
-}
+pub struct Input;
 
-impl<'tick> Graphics<'tick> {
-    // TODO: Methods for drawing shapes, sprites, perhaps even triangles, as well as getting access to the framebuffer
+impl Input {
+    //pub fn key(&self, key: Key) -> KeyState { todo!() }
+    //pub fn key_presses(&self) -> impl Iterator<Item = Key>;
+    //pub fn axis(&self, axis: Axis) -> AxisState { todo!() }
 }
 
 pub struct Audio;

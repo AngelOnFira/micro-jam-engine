@@ -1,10 +1,12 @@
-use winit::{event::{VirtualKeyCode, KeyboardInput}, dpi::PhysicalPosition};
+use winit::{
+    dpi::PhysicalPosition,
+    event::{KeyboardInput, VirtualKeyCode},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum InputEvent {
     KeyboardInput(KeyboardInput),
     CursorMoved(PhysicalPosition<f64>),
-
 }
 
 pub enum KeyState {

@@ -27,14 +27,46 @@ impl<'tick> Graphics<'tick> {
 
     /// Draw a rectangle. This takes a starting position and a size, and fills
     /// the rectangle with the given color.
-    pub fn draw_rect(&mut self, pos: Rect<f32, f32>, color: u32) {
-        for y in pos.y as i32..(pos.y + pos.h) as i32 {
-            for x in pos.x as i32..(pos.x + pos.w) as i32 {
-                // If this pixel is outside the framebuffer, skip it
-                if x < 0 || y < 0 || x >= self.size.x as i32 || y >= self.size.y as i32 {
-                    continue;
+    pub fn draw_rect(&mut self, pos: Rect<f32, f32>, color: u32, filled: bool) {
+        match filled {
+            true => {
+                for y in pos.y as i32..(pos.y + pos.h) as i32 {
+                    for x in pos.x as i32..(pos.x + pos.w) as i32 {
+                        // If this pixel is outside the framebuffer, skip it
+                        if x < 0 || y < 0 || x >= self.size.x as i32 || y >= self.size.y as i32 {
+                            continue;
+                        }
+                        self.framebuffer[y as usize * self.size.x + x as usize] = color;
+                    }
                 }
-                self.framebuffer[y as usize * self.size.x + x as usize] = color;
+            }
+            false => {
+                let x = pos.x as i32;
+                let y = pos.y as i32;
+                let w = pos.w as i32;
+                let h = pos.h as i32;
+
+                let points = vec![
+                    // Top
+                    (x..x + w).map(|x| (x, y)).collect::<Vec<_>>(),
+                    // Bottom
+                    (x..x + w).map(|x| (x, y + h)).collect::<Vec<_>>(),
+                    // Left
+                    (y..y + h).map(|y| (x, y)).collect::<Vec<_>>(),
+                    // Right
+                    (y..y + h).map(|y| (x + w, y)).collect::<Vec<_>>(),
+                ]
+                .into_iter()
+                .flatten()
+                .collect::<Vec<_>>();
+
+                for (x, y) in points {
+                    // If this pixel is outside the framebuffer, skip it
+                    if x < 0 || y < 0 || x >= self.size.x as i32 || y >= self.size.y as i32 {
+                        continue;
+                    }
+                    self.framebuffer[y as usize * self.size.x + x as usize] = color;
+                }
             }
         }
     }

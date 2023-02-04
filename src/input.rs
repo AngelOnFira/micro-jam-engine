@@ -2,11 +2,13 @@ use winit::{
     dpi::PhysicalPosition,
     event::{KeyboardInput, VirtualKeyCode},
 };
+use winit_input_helper::WinitInputHelper;
 
+#[derive(Clone)]
 pub struct Input {
-    pub events: Vec<InputEvent>,
-    pub input: KeyboardState,
-};
+    pub input_queue: Vec<InputEvent>,
+    pub input_helper: WinitInputHelper,
+}
 
 impl Input {
     //pub fn key(&self, key: Key) -> KeyState { todo!() }

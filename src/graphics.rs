@@ -1,5 +1,7 @@
+use std::cmp::min;
+
 use line_drawing::Bresenham;
-use vek::Vec2;
+use vek::{Rect, Vec2};
 
 pub struct Graphics<'tick> {
     pub size: Vec2<usize>,
@@ -7,6 +9,14 @@ pub struct Graphics<'tick> {
 }
 
 impl<'tick> Graphics<'tick> {
+    pub fn width(&self) -> f32 {
+        self.size.x as f32
+    }
+
+    pub fn height(&self) -> f32 {
+        self.size.y as f32
+    }
+
     // TODO: Methods for drawing shapes, sprites, perhaps even triangles, as
     // well as getting access to the framebuffer
     pub fn clear(&mut self, color: u32) {
@@ -17,11 +27,11 @@ impl<'tick> Graphics<'tick> {
 
     /// Draw a rectangle. This takes a starting position and a size, and fills
     /// the rectangle with the given color.
-    pub fn draw_rect(&mut self, pos: Vec2<i64>, size: Vec2<i64>, color: u32) {
-        for y in pos.y..pos.y + size.y {
-            for x in pos.x..pos.x + size.x {
+    pub fn draw_rect(&mut self, pos: Rect<f32, f32>, color: u32) {
+        for y in pos.y as i32..(pos.y + pos.h) as i32 {
+            for x in pos.x as i32..(pos.x + pos.w) as i32 {
                 // If this pixel is outside the framebuffer, skip it
-                if x < 0 || y < 0 || x >= self.size.x as i64 || y >= self.size.y as i64 {
+                if x < 0 || y < 0 || x >= self.size.x as i32 || y >= self.size.y as i32 {
                     continue;
                 }
                 self.framebuffer[y as usize * self.size.x + x as usize] = color;

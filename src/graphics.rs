@@ -1,3 +1,4 @@
+use line_drawing::Bresenham;
 use vek::Vec2;
 
 pub struct Graphics<'tick> {
@@ -16,41 +17,39 @@ impl<'tick> Graphics<'tick> {
 
     /// Draw a rectangle. This takes a starting position and a size, and fills
     /// the rectangle with the given color.
-    pub fn draw_rect(&mut self, pos: Vec2<usize>, size: Vec2<usize>, color: u32) {
+    pub fn draw_rect(&mut self, pos: Vec2<i64>, size: Vec2<i64>, color: u32) {
         for y in pos.y..pos.y + size.y {
             for x in pos.x..pos.x + size.x {
-                self.framebuffer[y * self.size.x + x] = color;
+                // If this pixel is outside the framebuffer, skip it
+                if x < 0 || y < 0 || x >= self.size.x as i64 || y >= self.size.y as i64 {
+                    continue;
+                }
+                self.framebuffer[y as usize * self.size.x + x as usize] = color;
             }
         }
     }
 
     /// Draw a line. This takes a starting position and an ending position, and
     /// draws a line between them with the given color.
-    pub fn draw_line(&mut self, start: Vec2<usize>, end: Vec2<usize>, color: u32) {
-        let delta = end - start;
-        let delta = delta.map(|x| x as f32);
-        let delta = delta.map(|x| x.abs());
-        let delta = delta.map(|x| x as usize);
-        let delta = delta.map(|x| x.max(1));
-
-        let step = (end - start).map(|x| x as f32 / delta.x as f32);
-
-        for i in 0..delta.x {
-            let pos = start.map(|x| x as f32) + step * i as f32;
-            let pos = pos.map(|x| x as usize);
-            self.framebuffer[pos.y * self.size.x + pos.x] = color;
+    /// TODO: Change this to internal implementation of Bresenham's algorithm
+    pub fn draw_line(&mut self, start: Vec2<i64>, end: Vec2<i64>, color: u32) {
+        for (x, y) in Bresenham::new((start.x, start.y), (end.x, end.y)) {
+            // If this pixel is outside the framebuffer, skip it
+            if x < 0 || y < 0 || x >= self.size.x as i64 || y >= self.size.y as i64 {
+                continue;
+            }
+            self.framebuffer[y as usize * self.size.x + x as usize] = color;
         }
     }
 
     /// Draw a circle. This takes a center position and a radius, and draws a
     /// circle with the given color.
-    pub fn draw_circle(&mut self, center: Vec2<usize>, radius: usize, color: u32) {
-        for y in -1 * radius as isize..radius as isize {
-            for x in -1 * radius as isize..radius as isize {
-                let pos = center.map(|x| x as isize) + Vec2::new(x, y);
-                let pos = pos.map(|x| x as usize);
-                if (pos - center).map(|x| x as isize).magnitude_squared() <= radius as isize * radius as isize {
-                    self.framebuffer[pos.y * self.size.x + pos.x] = color;
+    pub fn draw_circle(&mut self, center: Vec2<i64>, radius: i64, color: u32) {
+        for y in -radius..radius {
+            for x in -radius..radius {
+                let pos = center + Vec2::new(x, y);
+                if (pos - center).magnitude_squared() <= radius * radius {
+                    self.framebuffer[pos.y as usize * self.size.x + pos.x as usize] = color;
                 }
             }
         }

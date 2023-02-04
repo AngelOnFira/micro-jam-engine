@@ -21,14 +21,20 @@ impl Game for Shapes {
         // Make it green, using the hex colour code in this case.
         console.graphics.draw_line(
             Vec2::new(0, 0),
-            Vec2::new(console.graphics.size.x, console.graphics.size.y),
+            Vec2::new(
+                console.graphics.size.x as i64,
+                console.graphics.size.y as i64,
+            ),
             0x00FF00,
         );
 
         // Draw a circle in the bottom right corner, with radius 50. Make it
         // blue, using the hex colour code in this case.
         console.graphics.draw_circle(
-            Vec2::new(console.graphics.size.x - 100, console.graphics.size.y - 100),
+            Vec2::new(
+                (console.graphics.size.x - 100) as i64,
+                (console.graphics.size.y - 100) as i64,
+            ),
             50,
             0x0000FF,
         );

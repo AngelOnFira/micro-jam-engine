@@ -27,11 +27,11 @@ impl<'tick> Graphics<'tick> {
 
     /// Draw a rectangle. This takes a starting position and a size, and fills
     /// the rectangle with the given color.
-    pub fn draw_rect(&mut self, pos: Rect<f32, f32>, color: u32, filled: bool) {
+    pub fn draw_rect(&mut self, rect: Rect<f32, f32>, color: u32, filled: bool) {
         match filled {
             true => {
-                for y in pos.y as i32..(pos.y + pos.h) as i32 {
-                    for x in pos.x as i32..(pos.x + pos.w) as i32 {
+                for y in rect.y as i32..(rect.y + rect.h) as i32 {
+                    for x in rect.x as i32..(rect.x + rect.w) as i32 {
                         // If this pixel is outside the framebuffer, skip it
                         if x < 0 || y < 0 || x >= self.size.x as i32 || y >= self.size.y as i32 {
                             continue;
@@ -41,10 +41,10 @@ impl<'tick> Graphics<'tick> {
                 }
             }
             false => {
-                let x = pos.x as i32;
-                let y = pos.y as i32;
-                let w = pos.w as i32;
-                let h = pos.h as i32;
+                let x = rect.x as i32;
+                let y = rect.y as i32;
+                let w = rect.w as i32;
+                let h = rect.h as i32;
 
                 let points = vec![
                     // Top

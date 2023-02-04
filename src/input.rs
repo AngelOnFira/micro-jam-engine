@@ -22,19 +22,6 @@ pub enum InputEvent {
     CursorMoved(PhysicalPosition<f64>),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct KeyboardState {
-    key: VirtualKeyCode,
-}
-
-impl From<KeyboardInput> for KeyboardState {
-    fn from(input: KeyboardInput) -> Self {
-        Self {
-            key: input.virtual_keycode.unwrap(),
-        }
-    }
-}
-
 pub enum KeyState {
     Pressed,
     NotPressed,

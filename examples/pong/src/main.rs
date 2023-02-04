@@ -1,4 +1,6 @@
-use micro_jam_engine::{input::InputEvent, vek::*, Console, Game};
+use micro_jam_engine::{
+    input::InputEvent, prelude::winit::event::VirtualKeyCode, vek::*, Console, Game,
+};
 
 /// This will be an implementation of pong. It will just be drawn with
 /// rectangles, and will use simple collision detection to determine if the ball
@@ -48,12 +50,14 @@ impl Game for Pong {
         // Handle all inputs
         for input in &console.input {
             match input {
-                InputEvent::KeyboardInput(input) => match input.scancode {
-                    17 => {
-                        self.player.paddle_pos += 1.0 * dt;
+                InputEvent::KeyboardInput(input) => match input.virtual_keycode.unwrap() {
+                    VirtualKeyCode::W | VirtualKeyCode::Up => {
+                        self.player.paddle_pos += 10.0 * dt;
+                        println!("W pressed");
                     }
-                    31 => {
-                        self.player.paddle_pos -= 1.0 * dt;
+                    VirtualKeyCode::S | VirtualKeyCode::Down => {
+                        self.player.paddle_pos -= 10.0 * dt;
+                        println!("S pressed");
                     }
                     _ => {}
                 },
@@ -100,6 +104,32 @@ impl Game for Pong {
             self.ball_vel = Vec2::new(0.0, 0.0);
             self.score = 0;
         }
+
+        // Draw the ball
+        console.graphics.draw_rect(
+            Vec2::new(
+                (self.ball_pos.x - 2.0) as i64,
+                (self.ball_pos.y - 2.0) as i64,
+            ),
+            Vec2::new(4, 4),
+            0x00FF00,
+        );
+
+        // Draw the player's paddle
+        console.graphics.draw_rect(
+            Vec2::new(100, (self.player.paddle_pos - 10.0) as i64),
+            Vec2::new(4, 20),
+            0x00FF00,
+        );
+
+        // Draw the AI's paddle
+        console.graphics.draw_rect(
+            Vec2::new(-100, (self.ai.paddle_pos - 10.0) as i64),
+            Vec2::new(4, 20),
+            0x00FF00,
+        );
+
+        // Draw the score
     }
 }
 

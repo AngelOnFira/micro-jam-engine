@@ -36,6 +36,7 @@ console_error_panic_hook = { version = "0.1.6", optional = true }
 wee_alloc = { version = "0.4.5", optional = true }
 web-sys = "0.3.60"
 line_drawing = "1.0.0"
+winit_input_helper = "0.13.0"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"

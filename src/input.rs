@@ -3,10 +3,34 @@ use winit::{
     event::{KeyboardInput, VirtualKeyCode},
 };
 
+pub struct Input {
+    pub events: Vec<InputEvent>,
+    pub input: KeyboardState,
+};
+
+impl Input {
+    //pub fn key(&self, key: Key) -> KeyState { todo!() }
+    //pub fn key_presses(&self) -> impl Iterator<Item = Key>;
+    //pub fn axis(&self, axis: Axis) -> AxisState { todo!() }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum InputEvent {
     KeyboardInput(KeyboardInput),
     CursorMoved(PhysicalPosition<f64>),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct KeyboardState {
+    key: VirtualKeyCode,
+}
+
+impl From<KeyboardInput> for KeyboardState {
+    fn from(input: KeyboardInput) -> Self {
+        Self {
+            key: input.virtual_keycode.unwrap(),
+        }
+    }
 }
 
 pub enum KeyState {

@@ -1,5 +1,6 @@
 use graphics::Graphics;
 use input::InputEvent;
+use winit_input_helper::WinitInputHelper;
 use std::rc::Rc;
 use std::sync::RwLock;
 use std::{marker::PhantomData, time::Instant};
@@ -15,6 +16,14 @@ use vek::*;
 mod graphics;
 pub mod input;
 mod utils;
+
+pub mod prelude {
+    pub use crate::graphics::*;
+    pub use crate::input::*;
+    pub use crate::utils::*;
+    pub use vek::*;
+    pub use winit;
+}
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -50,14 +59,6 @@ pub struct Console<'tick, G: Game> {
     pub graphics: Graphics<'tick>,
     pub audio: Audio,
     pub save: Save<G::SaveData>,
-}
-
-pub struct Input;
-
-impl Input {
-    //pub fn key(&self, key: Key) -> KeyState { todo!() }
-    //pub fn key_presses(&self) -> impl Iterator<Item = Key>;
-    //pub fn axis(&self, axis: Axis) -> AxisState { todo!() }
 }
 
 pub struct Audio;
@@ -122,10 +123,14 @@ fn run_with<G: Game>() {
         },
     });
 
+    let mut input_queue = Vec::new();
+
+    let mut input = WinitInputHelper::new();
+
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
 
-        let mut input_queue = Vec::new();
+        input.update(&event);
 
         match event {
             Event::RedrawRequested(window_id) if window_id == window.id() => {

@@ -1,5 +1,3 @@
-use std::time::Instant;
-
 pub struct Timer {
     pub start_time: f32,
     pub duration: f32,

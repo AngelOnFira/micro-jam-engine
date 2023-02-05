@@ -1,9 +1,4 @@
-use micro_jam_engine::{
-    input::InputEvent,
-    prelude::{winit::event::VirtualKeyCode, Graphics},
-    vek::{num_traits::clamp, *},
-    Console, Game,
-};
+use micro_jam_engine::{prelude::Graphics, vek::*};
 
 use crate::timer;
 

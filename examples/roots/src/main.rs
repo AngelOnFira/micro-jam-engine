@@ -1,10 +1,5 @@
 use food::Food;
-use micro_jam_engine::{
-    input::InputEvent,
-    prelude::{winit::event::VirtualKeyCode, Graphics},
-    vek::{num_traits::clamp, *},
-    Console, Game,
-};
+use micro_jam_engine::{prelude::winit::event::VirtualKeyCode, vek::*, Console, Game};
 use root::{Root, RootState};
 
 mod food;
@@ -117,7 +112,7 @@ impl Game for Roots {
     const TITLE: &'static str = "Roots";
     type SaveData = ();
 
-    fn init(console: &mut Console<Self>) -> Self {
+    fn init(_console: &mut Console<Self>) -> Self {
         let mut roots = Roots {
             player: Player {
                 pos: Vec2::new(100.0, 100.0),

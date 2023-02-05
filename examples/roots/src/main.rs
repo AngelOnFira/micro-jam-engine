@@ -18,7 +18,7 @@ impl Roots {
         self.roots.push(Root {
             // Add 10 links that start at the player pos
             links: vec![self.player.pos; 10],
-            state: RootState::Exploring,
+            state: RootState::Exploring { search_point: None },
         });
     }
 
@@ -27,36 +27,99 @@ impl Roots {
     /// root will then try to move towards the root in front of it.
     fn move_roots(&mut self) {
         for root in self.roots.iter_mut() {
-            // The link at the end of the root wants to try and move to the
-            // closest food
-            let link = root.links.last_mut().unwrap();
+            match root.state {
+                RootState::Exploring { search_point } => {
+                    // If the current search point is None, create a new one
+                    if search_point.is_none() {
+                        root.state = RootState::Exploring {
+                            search_point: Some(Vec2::new(
+                                rand::random::<f32>() * 200.0 - 100.0,
+                                rand::random::<f32>() * 200.0 - 100.0,
+                            )),
+                        };
+                        continue;
+                    }
 
-            // Find the closest food
-            let closest_food = self.food.pieces.iter().min_by(|a, b| {
-                let dist_a = (a.pos - *link).magnitude_squared();
-                let dist_b = (b.pos - *link).magnitude_squared();
-                dist_a.partial_cmp(&dist_b).unwrap()
-            });
+                    // The link at the end of the root wants to try and move to the
+                    // closest food
+                    let link = root.links.last_mut().unwrap();
 
-            // If there is no food, then just move the link towards the player
-            let closest_food = match closest_food {
-                Some(food) => food,
-                None => {
-                    let dir = (self.player.pos - *link)
-                        .try_normalized()
-                        .unwrap_or(Vec2::zero());
+                    // Find the closest food
+                    let closest_food = self.food.pieces.iter().min_by(|a, b| {
+                        let dist_a = (a.pos - *link).magnitude_squared();
+                        let dist_b = (b.pos - *link).magnitude_squared();
+                        dist_a.partial_cmp(&dist_b).unwrap()
+                    });
+
+                    // Check if we should start chasing a food
+
+                    if closest_food.is_some() {
+                        let food = closest_food.unwrap();
+
+                        // If the food is close enough, then we'll change
+                        // our state to chase it
+                        if (food.pos - *link).magnitude() < 400.0 {
+                            root.state = RootState::ChasingFood { food_pos: food.pos };
+                            continue;
+                        }
+                    }
+
+                    // If there is no food, then keep moving towards the search point
+                    let move_pos = match search_point {
+                        Some(search_point) => {
+                            // If the search point is too close, find
+                            // another search point
+                            if (search_point - *link).magnitude_squared() < 100.0 {
+                                // Pick a new search location that is
+                                // within a 200 radius of the player
+                                let search_point = Vec2::new(
+                                    self.player.pos.x + rand::random::<f32>() * 200.0 - 100.0,
+                                    self.player.pos.y + rand::random::<f32>() * 200.0 - 100.0,
+                                );
+                                root.state = RootState::Exploring {
+                                    search_point: Some(search_point),
+                                };
+                                continue;
+                            } else {
+                                search_point
+                            }
+                        }
+                        None => {
+                            // If there is no search point, then we'll change
+                            // our state to explore
+                            root.state = RootState::Exploring { search_point: None };
+                            continue;
+                        }
+                    };
+
+                    // Move the link towards the food with a max speed of 10
+                    let dir = (move_pos - *link).try_normalized().unwrap_or(Vec2::zero());
+
+                    // Move the link
                     *link += dir * 10.0;
-                    continue;
                 }
-            };
+                RootState::ChasingFood { food_pos } => {
+                    // The link at the end of the root wants to try and move to the
+                    // closest food
+                    let link = root.links.last_mut().unwrap();
 
-            // Move the link towards the food with a max speed of 10
-            let dir = (closest_food.pos - *link)
-                .try_normalized()
-                .unwrap_or(Vec2::zero());
+                    // If the food is close enough, then we'll change
+                    // our state to eating it
+                    if (food_pos - *link).magnitude() < 100.0 {
+                        root.state = RootState::Eating;
+                        *link = food_pos;
+                        continue;
+                    }
 
-            // Move the link
-            *link += dir * 10.0;
+                    // Move the link towards the food with a max speed of 10
+                    let dir = (food_pos - *link).try_normalized().unwrap_or(Vec2::zero());
+
+                    // Move the link
+                    *link += dir * 10.0;
+                }
+                RootState::Eating => {},
+                RootState::Attacking => todo!(),
+            }
         }
 
         // For every link between the end of a root and the player, move the
@@ -88,8 +151,12 @@ impl Roots {
 
         // Draw the roots
         for root in self.roots.iter() {
-            for link in root.links.iter() {
-                graphics.draw_circle(Vec2::new(link.x as i64, link.y as i64), 20, 0xffffff);
+            for (i, link) in root.links.iter().enumerate() {
+                graphics.draw_circle(
+                    Vec2::new(link.x as i64, link.y as i64),
+                    if i + 1 == root.links.len() { 20 } else { 10 },
+                    0xffffff,
+                );
             }
         }
 
@@ -112,7 +179,7 @@ impl Game for Roots {
     const TITLE: &'static str = "Roots";
     type SaveData = ();
 
-    fn init(_console: &mut Console<Self>) -> Self {
+    fn init(console: &mut Console<Self>) -> Self {
         let mut roots = Roots {
             player: Player {
                 pos: Vec2::new(100.0, 100.0),
@@ -122,7 +189,15 @@ impl Game for Roots {
             food: Food::new(),
         };
 
-        roots.add_root();
+        // Add 2 roots
+        for _ in 0..2 {
+            roots.add_root();
+        }
+
+        // Add 2 food
+        for _ in 0..2 {
+            roots.food.add_food(&console.graphics);
+        }
 
         roots
     }

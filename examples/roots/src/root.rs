@@ -9,7 +9,8 @@ pub struct Root {
 impl Root {}
 
 pub enum RootState {
-    Exploring,
+    Exploring { search_point: Option<Vec2<f32>> },
+    ChasingFood { food_pos: Vec2<f32> },
     Eating,
     Attacking,
 }

@@ -1,4 +1,5 @@
 use food::Food;
+use hecs::World;
 use micro_jam_engine::{prelude::winit::event::VirtualKeyCode, vek::*, Console, Game};
 use root::{Root, RootState};
 
@@ -8,6 +9,7 @@ mod timer;
 
 struct Roots {
     player: Player,
+    world: World,
     time: f32,
     roots: Vec<Root>,
     food: Food,
@@ -17,7 +19,7 @@ impl Roots {
     fn add_root(&mut self) {
         self.roots.push(Root {
             // Add 10 links that start at the player pos
-            links: vec![self.player.pos; 10],
+            links: vec![self.player.pos; 50],
             state: RootState::Exploring { search_point: None },
         });
     }
@@ -29,12 +31,19 @@ impl Roots {
         for root in self.roots.iter_mut() {
             match root.state {
                 RootState::Exploring { search_point } => {
-                    // If the current search point is None, create a new one
-                    if search_point.is_none() {
+                    fn random_search_distance(n: f32) -> f32 {
+                        rand::random::<f32>() * n - n / 2.0
+                    }
+
+                    // If the current search point is None, or we've gotten too
+                    // far from the player, create a new one
+                    if search_point.is_none()
+                    // || (search_point.unwrap() - self.player.pos).magnitude() > 100.0
+                    {
                         root.state = RootState::Exploring {
                             search_point: Some(Vec2::new(
-                                rand::random::<f32>() * 200.0 - 100.0,
-                                rand::random::<f32>() * 200.0 - 100.0,
+                                random_search_distance(100.0),
+                                random_search_distance(100.0),
                             )),
                         };
                         continue;
@@ -73,8 +82,8 @@ impl Roots {
                                 // Pick a new search location that is
                                 // within a 200 radius of the player
                                 let search_point = Vec2::new(
-                                    self.player.pos.x + rand::random::<f32>() * 200.0 - 100.0,
-                                    self.player.pos.y + rand::random::<f32>() * 200.0 - 100.0,
+                                    self.player.pos.x + random_search_distance(100.0),
+                                    self.player.pos.y + random_search_distance(100.0),
                                 );
                                 root.state = RootState::Exploring {
                                     search_point: Some(search_point),
@@ -95,8 +104,11 @@ impl Roots {
                     // Move the link towards the food with a max speed of 10
                     let dir = (move_pos - *link).try_normalized().unwrap_or(Vec2::zero());
 
+                    // Move the link faster if it's further away from its target
+                    let speed = 10.0 * (move_pos - *link).magnitude() / 100.0;
+
                     // Move the link
-                    *link += dir * 10.0;
+                    *link += dir * speed;
                 }
                 RootState::ChasingFood { food_pos } => {
                     // The link at the end of the root wants to try and move to the
@@ -112,12 +124,39 @@ impl Roots {
                     }
 
                     // Move the link towards the food with a max speed of 10
-                    let dir = (food_pos - *link).try_normalized().unwrap_or(Vec2::zero());
+                    let dir = (food_pos - *link).try_normalized().unwrap_or(
+                        // Pick somewhere random on the screen
+                        Vec2::new(
+                            rand::random::<f32>() * 1000.0,
+                            rand::random::<f32>() * 1000.0,
+                        ),
+                    );
 
                     // Move the link
                     *link += dir * 10.0;
                 }
-                RootState::Eating => {},
+                RootState::Eating => {
+                    // Find the food at this location, and reduce its remaining
+                    // food
+                    let food =
+                        self.food.pieces.iter_mut().find(|food| {
+                            (food.pos - root.links.last().unwrap()).magnitude() < 10.0
+                        });
+
+                    if let Some(food) = food {
+                        food.remaining -= 1.0;
+
+                        // If the food is gone, then we'll change our state to
+                        // exploring
+                        if food.remaining <= 0.0 {
+                            root.state = RootState::Exploring { search_point: None };
+                        }
+                    } else {
+                        // If there is no food, then we'll change our state to
+                        // exploring
+                        root.state = RootState::Exploring { search_point: None };
+                    }
+                }
                 RootState::Attacking => todo!(),
             }
         }
@@ -184,18 +223,19 @@ impl Game for Roots {
             player: Player {
                 pos: Vec2::new(100.0, 100.0),
             },
+            world: World::new(),
             time: 0.0,
             roots: vec![],
             food: Food::new(),
         };
 
-        // Add 2 roots
-        for _ in 0..2 {
+        // Add 10 roots
+        for _ in 0..10 {
             roots.add_root();
         }
 
         // Add 2 food
-        for _ in 0..2 {
+        for _ in 0..3 {
             roots.food.add_food(&console.graphics);
         }
 
@@ -236,6 +276,9 @@ impl Game for Roots {
 
         // Check the food timer
         self.food.check_food_timer(self.time, &console.graphics);
+
+        // Remove any food that has been eaten
+        self.food.remove_eaten_food();
 
         // Run the roots progression
         self.move_roots();

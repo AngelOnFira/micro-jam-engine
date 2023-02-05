@@ -1,10 +1,14 @@
+use food::Food;
 use micro_jam_engine::{
     input::InputEvent,
     prelude::{winit::event::VirtualKeyCode, Graphics},
     vek::{num_traits::clamp, *},
     Console, Game,
 };
+use root::{Root, RootState};
 
+mod food;
+mod root;
 mod timer;
 
 struct Roots {
@@ -19,6 +23,7 @@ impl Roots {
         self.roots.push(Root {
             // Add 10 links that start at the player pos
             links: vec![self.player.pos; 10],
+            state: RootState::Exploring,
         });
     }
 
@@ -32,15 +37,11 @@ impl Roots {
             let link = root.links.last_mut().unwrap();
 
             // Find the closest food
-            let closest_food = self
-                .food
-                .pieces
-                .iter()
-                .min_by(|a, b| {
-                    let dist_a = (a.pos - *link).magnitude_squared();
-                    let dist_b = (b.pos - *link).magnitude_squared();
-                    dist_a.partial_cmp(&dist_b).unwrap()
-                });
+            let closest_food = self.food.pieces.iter().min_by(|a, b| {
+                let dist_a = (a.pos - *link).magnitude_squared();
+                let dist_b = (b.pos - *link).magnitude_squared();
+                dist_a.partial_cmp(&dist_b).unwrap()
+            });
 
             // If there is no food, then just move the link towards the player
             let closest_food = match closest_food {
@@ -104,60 +105,6 @@ impl Roots {
             false,
         );
     }
-}
-
-// A root is a number of links that try to follow the player
-struct Root {
-    links: Vec<Vec2<f32>>,
-}
-
-impl Root {}
-
-struct Food {
-    pieces: Vec<FoodPiece>,
-    timer: timer::Timer,
-}
-
-impl Food {
-    fn new() -> Self {
-        Self {
-            pieces: vec![],
-            timer: timer::Timer::new(0.0, 10.0),
-        }
-    }
-
-    fn draw_food(&self, graphics: &mut Graphics) {
-        for piece in self.pieces.iter() {
-            graphics.draw_circle(
-                Vec2::new(piece.pos.x as i64, piece.pos.y as i64),
-                piece.radius as i64,
-                0x00ff00,
-            );
-        }
-    }
-
-    fn check_food_timer(&mut self, curr_time: f32, graphics: &Graphics) {
-        if self.timer.is_complete(curr_time) {
-            self.timer.start_time = curr_time;
-            self.add_food(graphics);
-        }
-    }
-
-    fn add_food(&mut self, graphics: &Graphics) {
-        let pos = Vec2::new(
-            rand::random::<f32>() * graphics.width() as f32,
-            rand::random::<f32>() * graphics.height() as f32,
-        );
-
-        dbg!(pos);
-
-        self.pieces.push(FoodPiece { pos, radius: 30.0 });
-    }
-}
-
-struct FoodPiece {
-    pos: Vec2<f32>,
-    radius: f32,
 }
 
 const GAME_SPEED: f32 = 100.0;

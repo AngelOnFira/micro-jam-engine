@@ -1,0 +1,8 @@
+[package]
+name = "roots"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+micro_jam_engine = { path = "../.." }
+rand = "0.8.5"

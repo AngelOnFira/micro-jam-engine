@@ -1,7 +1,4 @@
-use winit::{
-    dpi::PhysicalPosition,
-    event::{KeyboardInput, VirtualKeyCode},
-};
+use winit::{dpi::PhysicalPosition, event::KeyboardInput};
 use winit_input_helper::WinitInputHelper;
 
 #[derive(Clone)]

@@ -1,11 +1,10 @@
 use graphics::Graphics;
 use input::InputEvent;
 use prelude::Input;
-use std::rc::Rc;
-use std::sync::RwLock;
-use std::{marker::PhantomData, time::Instant};
+
+use std::marker::PhantomData;
 use wasm_bindgen::prelude::*;
-use winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
+use winit::event::{Event, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
 use winit_input_helper::WinitInputHelper;
@@ -76,7 +75,7 @@ impl<S> Save<S> {
     pub fn read(&mut self) -> S {
         todo!()
     }
-    pub fn write(&mut self, save: S) {
+    pub fn write(&mut self, _save: S) {
         todo!()
     }
 }
@@ -108,7 +107,7 @@ fn run_with<G: Game>() {
 
     let window_size = window.inner_size();
     let mut framebuffer = vec![0; window_size.width as usize * window_size.height as usize];
-    let mut flag = false;
+    let _flag = false;
 
     let mut time = instant::Instant::now();
 

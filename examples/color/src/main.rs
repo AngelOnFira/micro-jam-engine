@@ -1,5 +1,5 @@
-use micro_jam_engine::{Game, Console, vek::*};
-use euc::{Pipeline, Buffer2d, Target, TriangleList, IndexedVertices, Texture};
+use euc::{Buffer2d, IndexedVertices, Pipeline, Target, Texture, TriangleList};
+use micro_jam_engine::{vek::*, Console, Game};
 
 struct Cube {
     mvp: Mat4<f32>,
@@ -12,9 +12,15 @@ impl Pipeline for Cube {
     type Pixel = u32;
     type Fragment = Rgba<f32>;
 
-    fn vertex(&self, (pos, color): &Self::Vertex) -> ([f32; 4], Self::VertexData) { ((self.mvp * *pos).into_array(), *color) }
-    fn fragment(&self, color: Self::VertexData) -> Self::Fragment { color }
-    fn blend(&self, _: Self::Pixel, color: Self::Fragment) -> Self::Pixel { u32::from_le_bytes((color * 255.0).as_().into_array()) }
+    fn vertex(&self, (pos, color): &Self::Vertex) -> ([f32; 4], Self::VertexData) {
+        ((self.mvp * *pos).into_array(), *color)
+    }
+    fn fragment(&self, color: Self::VertexData) -> Self::Fragment {
+        color
+    }
+    fn blend(&self, _: Self::Pixel, color: Self::Fragment) -> Self::Pixel {
+        u32::from_le_bytes((color * 255.0).as_().into_array())
+    }
 }
 
 const R: Rgba<f32> = Rgba::new(1.0, 0.0, 0.0, 1.0);
@@ -24,13 +30,13 @@ const B: Rgba<f32> = Rgba::new(0.0, 0.0, 1.0, 1.0);
 
 const VERTICES: &[(Vec4<f32>, Rgba<f32>)] = &[
     (Vec4::new(-1.0, -1.0, -1.0, 1.0), R),
-    (Vec4::new(-1.0, -1.0,  1.0, 1.0), Y),
-    (Vec4::new(-1.0,  1.0, -1.0, 1.0), G),
-    (Vec4::new(-1.0,  1.0,  1.0, 1.0), B),
-    (Vec4::new( 1.0, -1.0, -1.0, 1.0), B),
-    (Vec4::new( 1.0, -1.0,  1.0, 1.0), G),
-    (Vec4::new( 1.0,  1.0, -1.0, 1.0), Y),
-    (Vec4::new( 1.0,  1.0,  1.0, 1.0), R),
+    (Vec4::new(-1.0, -1.0, 1.0, 1.0), Y),
+    (Vec4::new(-1.0, 1.0, -1.0, 1.0), G),
+    (Vec4::new(-1.0, 1.0, 1.0, 1.0), B),
+    (Vec4::new(1.0, -1.0, -1.0, 1.0), B),
+    (Vec4::new(1.0, -1.0, 1.0, 1.0), G),
+    (Vec4::new(1.0, 1.0, -1.0, 1.0), Y),
+    (Vec4::new(1.0, 1.0, 1.0, 1.0), R),
 ];
 
 const INDICES: &[usize] = &[
@@ -72,8 +78,13 @@ impl Game for Color {
             self.depth.clear(1.0);
         }
 
-        let mvp = Mat4::perspective_fov_lh_zo(1.3, console.graphics.size.x as f32, console.graphics.size.y as f32, 0.01, 100.0)
-            * Mat4::translation_3d(Vec3::new(0.0, 0.0, 3.0))
+        let mvp = Mat4::perspective_fov_lh_zo(
+            1.3,
+            console.graphics.size.x as f32,
+            console.graphics.size.y as f32,
+            0.01,
+            100.0,
+        ) * Mat4::translation_3d(Vec3::new(0.0, 0.0, 3.0))
             * Mat4::rotation_x((self.time as f32 * 0.4).sin() * 8.0)
             * Mat4::rotation_y((self.time as f32 * 0.8).cos() * 4.0)
             * Mat4::rotation_z((self.time as f32 * 1.6).sin() * 2.0)
@@ -87,7 +98,10 @@ impl Game for Color {
         );
 
         // Copy the color buffer to the console framebuffer
-        console.graphics.framebuffer.copy_from_slice(&self.color.raw());
+        console
+            .graphics
+            .framebuffer
+            .copy_from_slice(&self.color.raw());
     }
 }
 

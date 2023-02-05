@@ -1,5 +1,3 @@
-use std::cmp::min;
-
 use line_drawing::Bresenham;
 use vek::{Rect, Vec2};
 

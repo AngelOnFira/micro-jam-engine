@@ -27,36 +27,40 @@ impl Roots {
     /// root will then try to move towards the root in front of it.
     fn move_roots(&mut self) {
         for root in self.roots.iter_mut() {
-            // The link at the end of the root wants to move away from the player
-            let end_link = root.links.last_mut().unwrap();
-            let dir = (self.player.pos - *end_link).normalized();
+            // The link at the end of the root wants to try and move to the
+            // closest food
+            let link = root.links.last_mut().unwrap();
 
-            // If the direction is NaN, then replace it with a random direction
-            let dir = if dir.x.is_nan() || dir.y.is_nan() {
-                Vec2::new(rand::random::<f32>() - 0.5, rand::random::<f32>() - 0.5)
-            } else {
-                dir
+            // Find the closest food
+            let closest_food = self
+                .food
+                .pieces
+                .iter()
+                .min_by(|a, b| {
+                    let dist_a = (a.pos - *link).magnitude_squared();
+                    let dist_b = (b.pos - *link).magnitude_squared();
+                    dist_a.partial_cmp(&dist_b).unwrap()
+                });
+
+            // If there is no food, then just move the link towards the player
+            let closest_food = match closest_food {
+                Some(food) => food,
+                None => {
+                    let dir = (self.player.pos - *link)
+                        .try_normalized()
+                        .unwrap_or(Vec2::zero());
+                    *link += dir * 10.0;
+                    continue;
+                }
             };
 
-            *end_link += dir * 0.5;
-            // println!("dir: {:?}", dir);
-            // println!("end_link: {:?}", end_link);
+            // Move the link towards the food with a max speed of 10
+            let dir = (closest_food.pos - *link)
+                .try_normalized()
+                .unwrap_or(Vec2::zero());
 
-            // // Each root between the player and the end root wants to move towards
-            // // the root in front of it
-            for i in (1..root.links.len() - 1).rev() {
-                let dir = (root.links[i - 1] - root.links[i]).normalized();
-
-                // If the direction is NaN, then replace it with a random
-                // direction
-                let dir = if dir.x.is_nan() || dir.y.is_nan() {
-                    Vec2::new(rand::random::<f32>() - 0.5, rand::random::<f32>() - 0.5)
-                } else {
-                    dir
-                };
-
-                root.links[i] += dir * 0.5;
-            }
+            // Move the link
+            *link += dir * 10.0;
         }
     }
 

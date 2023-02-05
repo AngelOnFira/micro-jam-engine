@@ -1,14 +1,17 @@
 use micro_jam_engine::{
     input::InputEvent,
-    prelude::winit::event::VirtualKeyCode,
+    prelude::{winit::event::VirtualKeyCode, Graphics},
     vek::{num_traits::clamp, *},
     Console, Game,
 };
+
+mod timer;
 
 struct Roots {
     player: Player,
     time: f32,
     roots: Vec<Root>,
+    food: Food,
 }
 
 impl Roots {
@@ -24,19 +27,36 @@ impl Roots {
     /// root will then try to move towards the root in front of it.
     fn move_roots(&mut self) {
         for root in self.roots.iter_mut() {
-            // The root at the end of the root wants to move away from the player
+            // The link at the end of the root wants to move away from the player
             let end_link = root.links.last_mut().unwrap();
             let dir = (self.player.pos - *end_link).normalized();
+
+            // If the direction is NaN, then replace it with a random direction
+            let dir = if dir.x.is_nan() || dir.y.is_nan() {
+                Vec2::new(rand::random::<f32>() - 0.5, rand::random::<f32>() - 0.5)
+            } else {
+                dir
+            };
+
             *end_link += dir * 0.5;
+            // println!("dir: {:?}", dir);
+            // println!("end_link: {:?}", end_link);
 
             // // Each root between the player and the end root wants to move towards
             // // the root in front of it
-            // for i in (1..root.links.len()).rev() {
-            //     let link = &mut root.links[i];
-            //     let prev_link = &root.links[i - 1];
-            //     let dir = (*prev_link - *link).normalized();
-            //     *link += dir * 0.5;
-            // }
+            for i in (1..root.links.len() - 1).rev() {
+                let dir = (root.links[i - 1] - root.links[i]).normalized();
+
+                // If the direction is NaN, then replace it with a random
+                // direction
+                let dir = if dir.x.is_nan() || dir.y.is_nan() {
+                    Vec2::new(rand::random::<f32>() - 0.5, rand::random::<f32>() - 0.5)
+                } else {
+                    dir
+                };
+
+                root.links[i] += dir * 0.5;
+            }
         }
     }
 
@@ -48,7 +68,7 @@ impl Roots {
         // Draw the roots
         for root in self.roots.iter() {
             for link in root.links.iter() {
-                graphics.draw_circle(Vec2::new(link.x as i64, link.y as i64), 5, 0xffffff);
+                graphics.draw_circle(Vec2::new(link.x as i64, link.y as i64), 20, 0xffffff);
             }
         }
 
@@ -68,6 +88,53 @@ struct Root {
 
 impl Root {}
 
+struct Food {
+    pieces: Vec<FoodPiece>,
+    timer: timer::Timer,
+}
+
+impl Food {
+    fn new() -> Self {
+        Self {
+            pieces: vec![],
+            timer: timer::Timer::new(0.0, 10.0),
+        }
+    }
+
+    fn draw_food(&self, graphics: &mut Graphics) {
+        for piece in self.pieces.iter() {
+            graphics.draw_circle(
+                Vec2::new(piece.pos.x as i64, piece.pos.y as i64),
+                piece.radius as i64,
+                0x00ff00,
+            );
+        }
+    }
+
+    fn check_food_timer(&mut self, curr_time: f32, graphics: &Graphics) {
+        if self.timer.is_complete(curr_time) {
+            self.timer.start_time = curr_time;
+            self.add_food(graphics);
+        }
+    }
+
+    fn add_food(&mut self, graphics: &Graphics) {
+        let pos = Vec2::new(
+            rand::random::<f32>() * graphics.width() as f32,
+            rand::random::<f32>() * graphics.height() as f32,
+        );
+
+        dbg!(pos);
+
+        self.pieces.push(FoodPiece { pos, radius: 30.0 });
+    }
+}
+
+struct FoodPiece {
+    pos: Vec2<f32>,
+    radius: f32,
+}
+
 const GAME_SPEED: f32 = 100.0;
 
 struct Player {
@@ -75,7 +142,7 @@ struct Player {
 }
 
 impl Game for Roots {
-    const TITLE: &'static str = "Pong";
+    const TITLE: &'static str = "Roots";
     type SaveData = ();
 
     fn init(console: &mut Console<Self>) -> Self {
@@ -85,6 +152,7 @@ impl Game for Roots {
             },
             time: 0.0,
             roots: vec![],
+            food: Food::new(),
         };
 
         roots.add_root();
@@ -121,11 +189,23 @@ impl Game for Roots {
             self.player.pos.y += dt * move_multiplier;
         }
 
+        // Logic
+        // -----
+
+        // Check the food timer
+        self.food.check_food_timer(self.time, &console.graphics);
+
         // Run the roots progression
         self.move_roots();
 
+        // Graphics
+        // --------
+
         // Clear the screen
         console.graphics.clear(0x000000);
+
+        // Draw the food
+        self.food.draw_food(&mut console.graphics);
 
         // Draw the player
         self.draw(console);

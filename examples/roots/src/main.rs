@@ -62,6 +62,27 @@ impl Roots {
             // Move the link
             *link += dir * 10.0;
         }
+
+        // For every link between the end of a root and the player, move the
+        // link to the halfway point between itself and the link in front of it
+        for root in self.roots.iter_mut() {
+            for i in 0..root.links.len() - 1 {
+                // If this is the first link, use the player as the link in
+                // front of it
+                let link_in_front = if i == 0 {
+                    self.player.pos
+                } else {
+                    root.links[i - 1]
+                };
+
+                // Get the link after this one
+                let link_after = root.links[i + 1];
+
+                // Move the link to the halfway point between the link in front
+                // and the link after
+                root.links[i] = (link_in_front + link_after) / 2.0;
+            }
+        }
     }
 
     /// Draw the player and all the roots. The roots are drawn as a series of

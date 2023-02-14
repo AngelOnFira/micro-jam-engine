@@ -7,3 +7,4 @@ wasm-pack.log
 dist/
 docs/book/
 docs/
+**/.DS_Store

@@ -239,6 +239,13 @@ impl Game for Roots {
             roots.food.add_food(&console.graphics);
         }
 
+        // Debug the screen resolution
+        println!(
+            "Screen resolution: {} x {}",
+            console.graphics.width(),
+            console.graphics.height()
+        );
+
         roots
     }
 

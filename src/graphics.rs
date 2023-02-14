@@ -15,6 +15,10 @@ impl<'tick> Graphics<'tick> {
         self.size.y as f32
     }
 
+    pub fn set_screen_size(&mut self, size: Vec2<usize>) {
+        self.size = size;
+    }
+
     // TODO: Methods for drawing shapes, sprites, perhaps even triangles, as
     // well as getting access to the framebuffer
     pub fn clear(&mut self, color: u32) {

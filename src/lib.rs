@@ -1,12 +1,13 @@
 use graphics::Graphics;
 use input::InputEvent;
-use std::rc::Rc;
-use std::sync::RwLock;
-use std::{marker::PhantomData, time::Instant};
+use prelude::Input;
+
+use std::marker::PhantomData;
 use wasm_bindgen::prelude::*;
-use winit::event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
+use winit::event::{Event, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
+use winit_input_helper::WinitInputHelper;
 
 pub use vek;
 
@@ -15,6 +16,14 @@ use vek::*;
 mod graphics;
 pub mod input;
 mod utils;
+
+pub mod prelude {
+    pub use crate::graphics::*;
+    pub use crate::input::*;
+    pub use crate::utils::*;
+    pub use vek::*;
+    pub use winit;
+}
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -46,18 +55,10 @@ pub trait Game: Sized + 'static {
 }
 
 pub struct Console<'tick, G: Game> {
-    pub input: Vec<InputEvent>,
+    pub input: Input,
     pub graphics: Graphics<'tick>,
     pub audio: Audio,
     pub save: Save<G::SaveData>,
-}
-
-pub struct Input;
-
-impl Input {
-    //pub fn key(&self, key: Key) -> KeyState { todo!() }
-    //pub fn key_presses(&self) -> impl Iterator<Item = Key>;
-    //pub fn axis(&self, axis: Axis) -> AxisState { todo!() }
 }
 
 pub struct Audio;
@@ -74,7 +75,7 @@ impl<S> Save<S> {
     pub fn read(&mut self) -> S {
         todo!()
     }
-    pub fn write(&mut self, save: S) {
+    pub fn write(&mut self, _save: S) {
         todo!()
     }
 }
@@ -106,12 +107,19 @@ fn run_with<G: Game>() {
 
     let window_size = window.inner_size();
     let mut framebuffer = vec![0; window_size.width as usize * window_size.height as usize];
-    let mut flag = false;
+    let _flag = false;
 
     let mut time = instant::Instant::now();
 
+    let mut input_helper = WinitInputHelper::new();
+    let mut input_queue = Vec::new();
+    let mut game_input = Input {
+        input_queue: Vec::new(),
+        input_helper: input_helper.clone(),
+    };
+
     let mut game = G::init(&mut Console {
-        input: Vec::new(),
+        input: game_input.clone(),
         graphics: Graphics {
             size: Vec2::new(window_size.width as usize, window_size.height as usize),
             framebuffer: &mut framebuffer,
@@ -124,8 +132,6 @@ fn run_with<G: Game>() {
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
-
-        let mut input_queue = Vec::new();
 
         match event {
             Event::RedrawRequested(window_id) if window_id == window.id() => {
@@ -180,35 +186,42 @@ fn run_with<G: Game>() {
             } => {
                 input_queue.push(InputEvent::CursorMoved(position));
             }
-            Event::MainEventsCleared => {
-                let new_time = instant::Instant::now();
+            // Event::MainEventsCleared => {
 
-                game.tick(
-                    new_time.duration_since(time).as_secs_f32(),
-                    &mut Console {
-                        input: input_queue.clone(),
-                        graphics: Graphics {
-                            size: {
-                                let sz = window.inner_size();
-                                Vec2::new(sz.width as usize, sz.height as usize)
-                            },
-                            framebuffer: &mut framebuffer,
-                        },
-                        audio: Audio,
-                        save: Save {
-                            phantom: PhantomData,
-                        },
-                    },
-                );
-
-                // Reset the input queue
-                input_queue.clear();
-
-                window.request_redraw();
-
-                time = new_time;
-            }
+            // }
             _ => {}
+        }
+
+        if input_helper.update(&event) {
+            let new_time = instant::Instant::now();
+
+            game.tick(
+                new_time.duration_since(time).as_secs_f32(),
+                &mut Console {
+                    input: Input {
+                        input_queue: input_queue.clone(),
+                        input_helper: input_helper.clone(),
+                    },
+                    graphics: Graphics {
+                        size: {
+                            let sz = window.inner_size();
+                            Vec2::new(sz.width as usize, sz.height as usize)
+                        },
+                        framebuffer: &mut framebuffer,
+                    },
+                    audio: Audio,
+                    save: Save {
+                        phantom: PhantomData,
+                    },
+                },
+            );
+
+            // Reset the input queue
+            game_input.input_queue.clear();
+
+            window.request_redraw();
+
+            time = new_time;
         }
     });
 }

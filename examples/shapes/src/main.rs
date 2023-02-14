@@ -15,7 +15,7 @@ impl Game for Shapes {
         // red, using the hex colour code in this case.
         console
             .graphics
-            .draw_rect(Vec2::new(0, 0), Vec2::new(100, 100), 0xFF0000);
+            .draw_rect(Rect::new(0.0, 0.0, 100.0, 100.0), 0xFF0000, false);
 
         // Draw a line from the top left corner to the bottom right corner.
         // Make it green, using the hex colour code in this case.

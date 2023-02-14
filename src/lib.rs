@@ -85,6 +85,7 @@ fn run_with<G: Game>() {
 
     let window = WindowBuilder::new()
         .with_title(G::TITLE)
+        .with_inner_size(winit::dpi::LogicalSize::new(800.0, 600.0))
         .build(&event_loop)
         .unwrap();
 

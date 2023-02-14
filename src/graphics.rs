@@ -15,6 +15,10 @@ impl<'tick> Graphics<'tick> {
         self.size.y as f32
     }
 
+    pub fn set_screen_size(&mut self, size: Vec2<usize>) {
+        self.size = size;
+    }
+
     // TODO: Methods for drawing shapes, sprites, perhaps even triangles, as
     // well as getting access to the framebuffer
     pub fn clear(&mut self, color: u32) {
@@ -91,6 +95,11 @@ impl<'tick> Graphics<'tick> {
             for x in -radius..radius {
                 let pos = center + Vec2::new(x, y);
                 if (pos - center).magnitude_squared() <= radius * radius {
+                    // Make sure this pixel is inside the framebuffer
+                    if pos.x < 0 || pos.y < 0 || pos.x >= self.size.x as i64 || pos.y >= self.size.y as i64 {
+                        continue;
+                    }
+                    
                     self.framebuffer[pos.y as usize * self.size.x + pos.x as usize] = color;
                 }
             }

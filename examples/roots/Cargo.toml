@@ -1,0 +1,10 @@
+[package]
+name = "roots"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+getrandom = { version = "0.2.8", features = ["js"] }
+hecs = "0.9.1"
+micro_jam_engine = { path = "../.." }
+rand = "0.8.5"

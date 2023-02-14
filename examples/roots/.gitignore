@@ -1,10 +1,7 @@
-**/target
+/target
 **/*.rs.bk
 Cargo.lock
 bin/
 pkg/
 wasm-pack.log
 dist/
-docs/book/
-docs/
-**/.DS_Store

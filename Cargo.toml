@@ -14,6 +14,7 @@ members = [
     "examples/pong",
     "examples/shapes",
     "examples/color",
+    "examples/roots",
 ]
 
 [dependencies]

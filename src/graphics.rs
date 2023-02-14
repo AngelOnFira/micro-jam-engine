@@ -39,32 +39,34 @@ impl<'tick> Graphics<'tick> {
                 }
             }
             false => {
-                let x = rect.x as i32;
-                let y = rect.y as i32;
-                let w = rect.w as i32;
-                let h = rect.h as i32;
+                // Draw the four lines that make up the rectangle
+                // Top
+                self.draw_line(
+                    Vec2::new(rect.x as i64, rect.y as i64),
+                    Vec2::new((rect.x + rect.w) as i64, rect.y as i64),
+                    color,
+                );
 
-                let points = vec![
-                    // Top
-                    (x..x + w).map(|x| (x, y)).collect::<Vec<_>>(),
-                    // Bottom
-                    (x..x + w).map(|x| (x, y + h)).collect::<Vec<_>>(),
-                    // Left
-                    (y..y + h).map(|y| (x, y)).collect::<Vec<_>>(),
-                    // Right
-                    (y..y + h).map(|y| (x + w, y)).collect::<Vec<_>>(),
-                ]
-                .into_iter()
-                .flatten()
-                .collect::<Vec<_>>();
+                // Bottom
+                self.draw_line(
+                    Vec2::new(rect.x as i64, (rect.y + rect.h) as i64),
+                    Vec2::new((rect.x + rect.w) as i64, (rect.y + rect.h) as i64),
+                    color,
+                );
 
-                for (x, y) in points {
-                    // If this pixel is outside the framebuffer, skip it
-                    if x < 0 || y < 0 || x >= self.size.x as i32 || y >= self.size.y as i32 {
-                        continue;
-                    }
-                    self.framebuffer[y as usize * self.size.x + x as usize] = color;
-                }
+                // Left
+                self.draw_line(
+                    Vec2::new(rect.x as i64, rect.y as i64),
+                    Vec2::new(rect.x as i64, (rect.y + rect.h) as i64),
+                    color,
+                );
+
+                // Right
+                self.draw_line(
+                    Vec2::new((rect.x + rect.w) as i64, rect.y as i64),
+                    Vec2::new((rect.x + rect.w) as i64, (rect.y + rect.h) as i64),
+                    color,
+                );
             }
         }
     }

@@ -1,2 +1,0 @@
-# Case Study: Pong
-

@@ -1,8 +1,0 @@
-[package]
-name = "color"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-micro_jam_engine = { path = "../.." }
-euc = { git = "https://github.com/zesterer/euc.git", branch = "refactor", default-features = false }

@@ -136,19 +136,9 @@ fn run_with<G: Game>() {
 
         match event {
             Event::RedrawRequested(window_id) if window_id == window.id() => {
-                // Grab the window's client area dimensions
-                let (width, height) = {
-                    let size = window.inner_size();
-                    (size.width as usize, size.height as usize)
-                };
-
-                // Resize the off-screen buffer if the window size has changed
-                if framebuffer.len() != width * height {
-                    framebuffer.resize(width * height, 0);
-                }
-
+                let sz = window.inner_size();
                 // Blit the offscreen buffer to the window's client area
-                surface.set_buffer(&framebuffer, width as u16, height as u16);
+                surface.set_buffer(&framebuffer, sz.width as u16, sz.height as u16);
             }
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
@@ -205,8 +195,17 @@ fn run_with<G: Game>() {
                     },
                     graphics: Graphics {
                         size: {
-                            let sz = window.inner_size();
-                            Vec2::new(sz.width as usize, sz.height as usize)
+                            let (width, height) = {
+                                let size = window.inner_size();
+                                (size.width as usize, size.height as usize)
+                            };
+
+                            // Resize the off-screen buffer if the window size has changed
+                            if framebuffer.len() != width * height {
+                                framebuffer.resize(width * height, 0);
+                            }
+
+                            Vec2::new(width, height)
                         },
                         framebuffer: &mut framebuffer,
                     },

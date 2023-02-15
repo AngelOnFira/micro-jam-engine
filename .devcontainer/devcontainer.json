@@ -11,5 +11,8 @@
 			]
 		}
 	},
-	"forwardPorts": [8080, 3000]
+	"forwardPorts": [8080, 3000],
+	"hostRequirements": {
+		"cpus": 4
+	}
 }

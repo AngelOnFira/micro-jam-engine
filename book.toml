@@ -2,5 +2,5 @@
 authors = ["Forest Anderson"]
 language = "en"
 multilingual = false
-src = "src"
+src = "docs/src"
 title = "Micro Engine Docs"

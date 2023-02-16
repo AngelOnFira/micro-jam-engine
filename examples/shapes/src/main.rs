@@ -32,10 +32,10 @@ impl Game for Shapes {
         // blue, using the hex colour code in this case.
         console.graphics.draw_circle(
             Vec2::new(
-                (console.graphics.size.x - 100) as i64,
-                (console.graphics.size.y - 100) as i64,
+                (console.graphics.size.x - 25) as i64,
+                (console.graphics.size.y - 25) as i64,
             ),
-            50,
+            12,
             0x0000FF,
         );
     }

@@ -80,17 +80,26 @@ impl<S> Save<S> {
     }
 }
 
+const W: usize = 200;
+const H: usize = 150;
+const SCALE: usize = 4;
+
 fn run_with<G: Game>() {
     let event_loop = EventLoop::new();
 
     let window = WindowBuilder::new()
         .with_title(G::TITLE)
-        .with_inner_size(winit::dpi::LogicalSize::new(800.0, 600.0))
+        .with_inner_size(winit::dpi::LogicalSize::new(
+            (W * SCALE) as f64,
+            (H * SCALE) as f64,
+        ))
+        .with_resizable(false)
         .build(&event_loop)
         .unwrap();
 
     #[cfg(target_arch = "wasm32")]
     {
+        use js_sys::{Array, Object};
         use winit::platform::web::WindowExtWebSys;
 
         web_sys::window()
@@ -107,7 +116,8 @@ fn run_with<G: Game>() {
     let mut surface = unsafe { softbuffer::Surface::new(&context, &window) }.unwrap();
 
     let window_size = window.inner_size();
-    let mut framebuffer = vec![0; window_size.width as usize * window_size.height as usize];
+    let mut framebuffer = vec![0; W * H];
+    let mut framebuffer_actual = vec![0; window_size.width as usize * window_size.height as usize];
     let _flag = false;
 
     let mut time = instant::Instant::now();
@@ -122,7 +132,7 @@ fn run_with<G: Game>() {
     let mut game = G::init(&mut Console {
         input: game_input.clone(),
         graphics: Graphics {
-            size: Vec2::new(window_size.width as usize, window_size.height as usize),
+            size: Vec2::new(W, H),
             framebuffer: &mut framebuffer,
         },
         audio: Audio,
@@ -137,8 +147,24 @@ fn run_with<G: Game>() {
         match event {
             Event::RedrawRequested(window_id) if window_id == window.id() => {
                 let sz = window.inner_size();
+                let (width, height) = (sz.width as usize, sz.height as usize);
+
+                // Resize the off-screen buffer if the window size has changed
+                if framebuffer_actual.len() != width * height {
+                    framebuffer_actual.resize(width * height, 0);
+                }
+
+                for j in 0..H {
+                    for j2 in 0..SCALE {
+                        for i in 0..W {
+                            let idx = ((j * SCALE + j2) * W + i) * SCALE;
+                            framebuffer_actual[idx..idx + SCALE].fill(framebuffer[j * W + i]);
+                        }
+                    }
+                }
+
                 // Blit the offscreen buffer to the window's client area
-                surface.set_buffer(&framebuffer, sz.width as u16, sz.height as u16);
+                surface.set_buffer(&framebuffer_actual, sz.width as u16, sz.height as u16);
             }
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
@@ -194,19 +220,7 @@ fn run_with<G: Game>() {
                         input_helper: input_helper.clone(),
                     },
                     graphics: Graphics {
-                        size: {
-                            let (width, height) = {
-                                let size = window.inner_size();
-                                (size.width as usize, size.height as usize)
-                            };
-
-                            // Resize the off-screen buffer if the window size has changed
-                            if framebuffer.len() != width * height {
-                                framebuffer.resize(width * height, 0);
-                            }
-
-                            Vec2::new(width, height)
-                        },
+                        size: Vec2::new(W, H),
                         framebuffer: &mut framebuffer,
                     },
                     audio: Audio,

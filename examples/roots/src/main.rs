@@ -126,10 +126,7 @@ impl Roots {
                     // Move the link towards the food with a max speed of 10
                     let dir = (food_pos - *link).try_normalized().unwrap_or(
                         // Pick somewhere random on the screen
-                        Vec2::new(
-                            rand::random::<f32>() * 1000.0,
-                            rand::random::<f32>() * 1000.0,
-                        ),
+                        Vec2::new(rand::random::<f32>() * 250.0, rand::random::<f32>() * 250.0),
                     );
 
                     // Move the link
@@ -193,7 +190,7 @@ impl Roots {
             for (i, link) in root.links.iter().enumerate() {
                 graphics.draw_circle(
                     Vec2::new(link.x as i64, link.y as i64),
-                    if i + 1 == root.links.len() { 20 } else { 10 },
+                    if i + 1 == root.links.len() { 5 } else { 2 },
                     0xffffff,
                 );
             }
@@ -201,7 +198,7 @@ impl Roots {
 
         // Draw the player. This comes second so that the player is drawn on top
         graphics.draw_rect(
-            Rect::new(self.player.pos.x - 5.0, self.player.pos.y - 5.0, 10.0, 10.0),
+            Rect::new(self.player.pos.x - 2.0, self.player.pos.y - 2.0, 4.0, 4.0),
             0xffffff,
             false,
         );
@@ -221,7 +218,10 @@ impl Game for Roots {
     fn init(console: &mut Console<Self>) -> Self {
         let mut roots = Roots {
             player: Player {
-                pos: Vec2::new(100.0, 100.0),
+                pos: Vec2::new(
+                    console.graphics.width() / 2.0,
+                    console.graphics.height() / 2.0,
+                ),
             },
             world: World::new(),
             time: 0.0,

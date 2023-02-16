@@ -96,10 +96,14 @@ impl<'tick> Graphics<'tick> {
                 let pos = center + Vec2::new(x, y);
                 if (pos - center).magnitude_squared() <= radius * radius {
                     // Make sure this pixel is inside the framebuffer
-                    if pos.x < 0 || pos.y < 0 || pos.x >= self.size.x as i64 || pos.y >= self.size.y as i64 {
+                    if pos.x < 0
+                        || pos.y < 0
+                        || pos.x >= self.size.x as i64
+                        || pos.y >= self.size.y as i64
+                    {
                         continue;
                     }
-                    
+
                     self.framebuffer[pos.y as usize * self.size.x + pos.x as usize] = color;
                 }
             }

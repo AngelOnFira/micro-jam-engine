@@ -19,7 +19,7 @@ impl Food {
         for piece in self.pieces.iter() {
             graphics.draw_circle(
                 Vec2::new(piece.pos.x as i64, piece.pos.y as i64),
-                piece.remaining as i64 + 20,
+                piece.remaining as i64 / 4 + 5,
                 0x00ff00,
             );
         }

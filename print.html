@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="engine-fundementals.html"><strong aria-hidden="true">3.</strong> Engine Fundementals</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="engine-fundementals/game-loop.html"><strong aria-hidden="true">3.1.</strong> Game Loop</a></li><li class="chapter-item expanded "><a href="engine-fundementals/input.html"><strong aria-hidden="true">3.2.</strong> Input</a></li><li class="chapter-item expanded "><a href="engine-fundementals/rendering.html"><strong aria-hidden="true">3.3.</strong> Rendering</a></li><li class="chapter-item expanded "><a href="engine-fundementals/window.html"><strong aria-hidden="true">3.4.</strong> Window</a></li><li class="chapter-item expanded "><a href="engine-fundementals/lying-to-you.html"><strong aria-hidden="true">3.5.</strong> Lying to you</a></li></ol></li><li class="chapter-item expanded "><a href="design-docs.html"><strong aria-hidden="true">4.</strong> Design Docs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="design-docs/pong.html"><strong aria-hidden="true">4.1.</strong> Design Doc: Pong</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="engine-fundementals.html"><strong aria-hidden="true">3.</strong> Engine Fundementals</a></li><li class="chapter-item expanded "><a href="design-docs.html"><strong aria-hidden="true">4.</strong> Design Docs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="design-docs/pong.html"><strong aria-hidden="true">4.1.</strong> Design Doc: Pong</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -182,13 +182,9 @@ won't include:
 </li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting started</a></h1>
-<p>For ease of setup, this engine is designed to work in Codespaces first. This is
-primarily to remove any barriers to getting up and running.</p>
-<p>That being said, working locally on your system with Rust installed is equally
-viable. There shouldn't be any barriers to just running <code>cargo run</code>, though
-you'll need to <a href="https://trunkrs.dev/#install">install trunk</a> to get your game
-running in the browser.</p>
-<h2 id="codespaces"><a class="header" href="#codespaces">Codespaces</a></h2>
+<p>For the ease of not duplicating data (for now), this section can be found <a href="https://angelonfira.notion.site/Setting-up-40f151683a8642f4b699f3d8ddfc6787">in
+the
+Micro Jam docs here</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="engine-fundementals"><a class="header" href="#engine-fundementals">Engine Fundementals</a></h1>
 <p>This section of the book will cover <del>some</del> <em>everything</em> that is happening
 under the hood of the engine. Because this engine is designed to be small, it
@@ -231,15 +227,6 @@ and when to use it.</p>
 implemented by just filling this function with all this separate logic. In your
 game, you might want to split this up into several methods, or even several
 modules. However, that's an implementation detail that is up to you.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="game-loop"><a class="header" href="#game-loop">Game Loop</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="input"><a class="header" href="#input">Input</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="rendering"><a class="header" href="#rendering">Rendering</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="window"><a class="header" href="#window">Window</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="lying-to-you"><a class="header" href="#lying-to-you">Lying to you</a></h1>
-<p>In this engine, as well as in this documentation book, there are several places
-where you've been &quot;lied to&quot;. Well, not really a lie, but maybe not the full truth. This is primarily to make it easier to discuss
-concepts at a higher level, not fall down too many rabbit holes, and keep things
-less complex.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="design-docs"><a class="header" href="#design-docs">Design Docs</a></h1>
 <p>This section of the book takes a basic game implementation, and suggest some
 ways to tweak it to make it more interesting.</p>
@@ -251,7 +238,7 @@ ways to tweak it to make it more interesting.</p>
 <li>User input</li>
 <li>Simple game state</li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="case-study-pong"><a class="header" href="#case-study-pong">Case Study: Pong</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="design-doc-pong"><a class="header" href="#design-doc-pong">Design Doc: Pong</a></h1>
 <p>We've built a version of Pong to work within this engine. It's very rudementary,
 and doesn't include all of Pong's mechanics, but it has basic input and physics.</p>
 <h2 id="mechanic-tweaks"><a class="header" href="#mechanic-tweaks">Mechanic tweaks</a></h2>
@@ -262,7 +249,9 @@ mechanics to turn it into a different game.</p>
 flying around the screen. The player can only move a single square paddle in
 both the x and y directions. The player needs to protect a zone in the middle
 of the screen.</li>
-<li><strong>Dodge the peeps</strong>: This time, the player </li>
+<li><strong>Dodge the peeps</strong>: This time, the player is a single ball, and the goal is
+to dodge the other balls. The player can only move in the x direction, and
+can't move up or down.</li>
 </ul>
 
                     </main>

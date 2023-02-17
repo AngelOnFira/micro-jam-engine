@@ -1,6 +1,9 @@
 # Micro Jam Engine
 
-You can find all of the information about the Rust Nation Micro Game Jam [here](https://angelonfira.notion.site/angelonfira/Rust-Nation-Micro-Game-Jam-5f1e931ca1324007abf4acdcc316fe18)
+You can find all of the information about the Rust Nation Micro Game Jam
+[here](https://angelonfira.notion.site/angelonfira/Rust-Nation-Micro-Game-Jam-5f1e931ca1324007abf4acdcc316fe18).
+
+## Getting Started
 
 Navigate to an example like
 

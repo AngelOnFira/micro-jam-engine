@@ -1,0 +1,8 @@
+[package]
+name = "order"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+micro_jam_engine = { path = "../.." }
+importunate = {git= "https://github.com/wainwrightmark/importunate" }

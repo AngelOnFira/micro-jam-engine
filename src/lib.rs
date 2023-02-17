@@ -93,20 +93,22 @@ impl<S> Save<S> {
 
 const W: usize = 200;
 const H: usize = 150;
-const SCALE: usize = 4;
 
 fn run_with<G: Game>() {
     let event_loop = EventLoop::new();
 
     let window = WindowBuilder::new()
         .with_title(G::TITLE)
-        .with_inner_size(winit::dpi::PhysicalSize::new(
-            (W * SCALE) as f64,
-            (H * SCALE) as f64,
-        ))
         .with_resizable(false)
         .build(&event_loop)
         .unwrap();
+
+    let scale = (4.0 * window.scale_factor()) as usize;
+
+    window.set_inner_size(winit::dpi::PhysicalSize::new(
+        (W * scale) as f64,
+        (H * scale) as f64,
+    ));
 
     #[cfg(target_arch = "wasm32")]
     {
@@ -168,10 +170,10 @@ fn run_with<G: Game>() {
                 }
 
                 for j in 0..H {
-                    for j2 in 0..SCALE {
+                    for j2 in 0..scale {
                         for i in 0..W {
-                            let idx = ((j * SCALE + j2) * W + i) * SCALE;
-                            framebuffer_actual[idx..idx + SCALE].fill(framebuffer[j * W + i]);
+                            let idx = ((j * scale + j2) * W + i) * scale;
+                            framebuffer_actual[idx..idx + scale].fill(framebuffer[j * W + i]);
                         }
                     }
                 }

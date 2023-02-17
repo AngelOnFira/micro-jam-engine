@@ -11,13 +11,64 @@ use micro_jam_engine::{
 /// paddle.
 
 const GAME_SPEED: f32 = 1.0;
-const AI_MAX_SPEED: f32 = 40.0;
+const AI_MAX_SPEED: f32 = 80.0;
+
+struct Ball {
+    pos: Vec2<f32>,
+    vel: Vec2<f32>,
+}
+
+impl Ball {
+    fn draw(&self, console: &mut Console<Pong>) {
+        console.graphics.draw_rect(
+            Rect::new(self.pos.x, self.pos.y, 10.0, 10.0),
+            0xFFFFFFFF,
+            false
+        );
+    }
+
+    fn update(&mut self, dt: f32, console: &mut Console<Pong>, player_paddle_rect: Rect<f32, f32>, ai_paddle_rect: Rect<f32, f32>) {
+        let ball_rect = Rect::new(self.pos.x, self.pos.y, 10.0, 10.0); 
+
+        self.pos += self.vel * dt;
+
+        // Update the ball
+        self.pos += self.vel * dt;
+
+        // Check if the ball has hit the left paddle and the velocity is going
+        // left
+        if ball_rect.collides_with_rect(player_paddle_rect) && self.vel.x < 0.0 {
+            self.vel.x = self.vel.x.abs();
+            self.vel.y = (self.pos.y - player_paddle_rect.center().y) * 4.0;
+        }
+
+        // Check if the ball has hit the right paddle and the velocity is going
+        // right
+        if ball_rect.collides_with_rect(ai_paddle_rect) && self.vel.x > 0.0 {
+            self.vel.x = -self.vel.x.abs();
+            self.vel.y = (self.pos.y - ai_paddle_rect.center().y) * 4.0;
+        }
+
+        // Check if the ball has hit the top or bottom of the screen
+        if self.pos.y < 15.0 || self.pos.y > console.graphics.height() - 15.0 - 12.0 {
+            self.vel.y = -self.vel.y.abs()
+                * (self.pos.y - (console.graphics.height() / 2.0)).signum();
+        }
+
+        // Check if the ball has hit the left or right of the screen
+        if self.pos.x < 15.0 || self.pos.x > console.graphics.width() - 15.0 - 12.0 {
+            self.vel.x = -self.vel.x.abs()
+                * (self.pos.x - (console.graphics.width() / 2.0)).signum();
+        }
+    }
+}
 
 struct Pong {
-    /// The position of the ball
-    ball_pos: Vec2<f32>,
-    /// The velocity of the ball
-    ball_vel: Vec2<f32>,
+    // /// The position of the ball
+    // ball_pos: Vec2<f32>,
+    // /// The velocity of the ball
+    // ball_vel: Vec2<f32>,
+    balls: Vec<Ball>,
     /// The player's paddle
     player: Player,
     /// The AI's paddle
@@ -39,11 +90,13 @@ impl Game for Pong {
 
     fn init(console: &mut Console<Self>) -> Self {
         Self {
-            ball_pos: Vec2::new(
-                console.graphics.width() / 2.0,
-                console.graphics.height() / 2.0,
-            ),
-            ball_vel: Vec2::new(100.0, 100.0),
+            balls: vec![Ball {
+                pos: Vec2::new(
+                    console.graphics.width() / 2.0,
+                    console.graphics.height() / 2.0,
+                ),
+                vel: Vec2::new(100.0, 100.0),
+            }],
             player: Player { paddle_pos: 25.0 },
             ai: Player { paddle_pos: 25.0 },
             score: 0,
@@ -68,6 +121,17 @@ impl Game for Pong {
             self.player.paddle_pos += 100.0 * dt;
         }
 
+        // if n is pressed, spawn a new ball
+        if console.input.key_pressed(VirtualKeyCode::N) {
+            self.balls.push(Ball {
+                pos: Vec2::new(
+                    console.graphics.width() / 2.0,
+                    console.graphics.height() / 2.0,
+                ),
+                vel: Vec2::new(100.0, 100.0),
+            });
+        }
+
         // Make sure the paddle doesn't go too high
         self.player.paddle_pos = clamp(
             self.player.paddle_pos,
@@ -76,7 +140,6 @@ impl Game for Pong {
         );
 
         // Set up the rectangles for the ball and paddles
-        let ball_rect = Rect::new(self.ball_pos.x, self.ball_pos.y, 10.0, 10.0);
 
         let player_paddle_rect = Rect::new(25.0, self.player.paddle_pos, 10.0, 50.0);
 
@@ -88,11 +151,14 @@ impl Game for Pong {
         );
 
         // Update the AI's paddle
-        if self.ball_pos.y > self.ai.paddle_pos + 25.0 {
+        let rightmost_ball = self.balls.iter().max_by_key(|ball| ball.pos.x as i32).unwrap();
+        if rightmost_ball.pos.y > self.ai.paddle_pos + 25.0 {
             self.ai.paddle_pos += AI_MAX_SPEED * dt;
-        } else if self.ball_pos.y < self.ai.paddle_pos + 25.0 {
+        } else if rightmost_ball.pos.y < self.ai.paddle_pos + 25.0 {
             self.ai.paddle_pos -= AI_MAX_SPEED * dt;
         }
+        
+
         // Make sure the paddle doesn't go too high
         self.ai.paddle_pos = clamp(
             self.ai.paddle_pos,
@@ -100,33 +166,9 @@ impl Game for Pong {
             console.graphics.height() - 50.0 - 15.0,
         );
 
-        // Update the ball
-        self.ball_pos += self.ball_vel * dt;
-
-        // Check if the ball has hit the left paddle and the velocity is going
-        // left
-        if ball_rect.collides_with_rect(player_paddle_rect) && self.ball_vel.x < 0.0 {
-            self.ball_vel.x = self.ball_vel.x.abs();
-            self.ball_vel.y = (self.ball_pos.y - player_paddle_rect.center().y) * 4.0;
-        }
-
-        // Check if the ball has hit the right paddle and the velocity is going
-        // right
-        if ball_rect.collides_with_rect(ai_paddle_rect) && self.ball_vel.x > 0.0 {
-            self.ball_vel.x = -self.ball_vel.x.abs();
-            self.ball_vel.y = (self.ball_pos.y - ai_paddle_rect.center().y) * 4.0;
-        }
-
-        // Check if the ball has hit the top or bottom of the screen
-        if self.ball_pos.y < 15.0 || self.ball_pos.y > console.graphics.height() - 15.0 - 12.0 {
-            self.ball_vel.y = -self.ball_vel.y.abs()
-                * (self.ball_pos.y - (console.graphics.height() / 2.0)).signum();
-        }
-
-        // Check if the ball has hit the left or right of the screen
-        if self.ball_pos.x < 15.0 || self.ball_pos.x > console.graphics.width() - 15.0 - 12.0 {
-            self.ball_vel.x = -self.ball_vel.x.abs()
-                * (self.ball_pos.x - (console.graphics.width() / 2.0)).signum();
+        // // Update the ball
+        for ball in &mut self.balls {
+            ball.update(dt, console, player_paddle_rect, ai_paddle_rect);
         }
 
         // Clear the screen
@@ -145,7 +187,10 @@ impl Game for Pong {
         );
 
         // Draw the ball
-        console.graphics.draw_rect(ball_rect, 0xFFFFFF, true);
+        // console.graphics.draw_rect(ball_rect, 0xFFFFFF, true);
+        for ball in &self.balls {
+            ball.draw(console);
+        }
 
         // Draw the player's paddle
         console

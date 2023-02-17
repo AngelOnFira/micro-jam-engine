@@ -257,23 +257,19 @@ impl Game for Roots {
         let move_multiplier = 4.5;
 
         // Make a player circle move with the arrow keys or WASD
-        if console.input.input_helper.key_held(VirtualKeyCode::Left)
-            || console.input.input_helper.key_held(VirtualKeyCode::A)
+        if console.input.key_held(VirtualKeyCode::Left) || console.input.key_held(VirtualKeyCode::A)
         {
             self.player.pos.x -= dt * move_multiplier;
         }
-        if console.input.input_helper.key_held(VirtualKeyCode::Right)
-            || console.input.input_helper.key_held(VirtualKeyCode::D)
+        if console.input.key_held(VirtualKeyCode::Right)
+            || console.input.key_held(VirtualKeyCode::D)
         {
             self.player.pos.x += dt * move_multiplier;
         }
-        if console.input.input_helper.key_held(VirtualKeyCode::Up)
-            || console.input.input_helper.key_held(VirtualKeyCode::W)
-        {
+        if console.input.key_held(VirtualKeyCode::Up) || console.input.key_held(VirtualKeyCode::W) {
             self.player.pos.y -= dt * move_multiplier;
         }
-        if console.input.input_helper.key_held(VirtualKeyCode::Down)
-            || console.input.input_helper.key_held(VirtualKeyCode::S)
+        if console.input.key_held(VirtualKeyCode::Down) || console.input.key_held(VirtualKeyCode::S)
         {
             self.player.pos.y += dt * move_multiplier;
         }

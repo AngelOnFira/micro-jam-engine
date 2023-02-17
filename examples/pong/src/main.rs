@@ -58,17 +58,8 @@ impl Game for Pong {
 
         // All numbers are in pixels, based on the size of the screen
 
-        // Handle all inputs
-        for input in &console.input.input_queue {
-            match input {
-                _ => {}
-            }
-        }
-
         // Check if W or S is pressed
-        if console.input.input_helper.key_held(VirtualKeyCode::W)
-            || console.input.input_helper.key_held(VirtualKeyCode::Up)
-        {
+        if console.input.key_held(VirtualKeyCode::W) || console.input.key_held(VirtualKeyCode::Up) {
             self.player.paddle_pos -= 100.0 * dt;
         }
 

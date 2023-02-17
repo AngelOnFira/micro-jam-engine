@@ -1,5 +1,5 @@
 use euc::{Buffer2d, IndexedVertices, Pipeline, Target, Texture, TriangleList};
-use micro_jam_engine::{vek::*, Console, Game};
+use micro_jam_engine::prelude::*;
 
 struct Cube {
     mvp: Mat4<f32>,

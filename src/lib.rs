@@ -17,10 +17,14 @@ mod graphics;
 pub mod input;
 mod utils;
 
+pub use image as _image;
+
 pub mod prelude {
     pub use crate::graphics::*;
     pub use crate::input::*;
     pub use crate::utils::*;
+    pub use crate::{Game, Console, sprite};
+    pub use lazy_static::lazy_static;
     pub use vek::*;
     pub use winit;
 }
@@ -59,6 +63,11 @@ pub struct Console<'tick, G: Game> {
     pub graphics: Graphics<'tick>,
     pub audio: Audio,
     pub save: Save<G::SaveData>,
+    tick: usize,
+}
+
+impl<'tick, G: Game> Console<'tick, G> {
+    pub fn tick(&self) -> usize { self.tick }
 }
 
 pub struct Audio;
@@ -139,8 +148,10 @@ fn run_with<G: Game>() {
         save: Save {
             phantom: PhantomData,
         },
+        tick: 0,
     });
 
+    let mut tick = 0;
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
 
@@ -227,8 +238,10 @@ fn run_with<G: Game>() {
                     save: Save {
                         phantom: PhantomData,
                     },
+                    tick,
                 },
             );
+            tick += 1;
 
             // Reset the input queue
             game_input.input_queue.clear();

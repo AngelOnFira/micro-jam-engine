@@ -3,7 +3,7 @@
 Navigate to an example like
 
 ```
-cd examples/color
+cd examples/cube
 ```
 
 Run one of the examples on the web with

@@ -23,7 +23,9 @@ struct Pong {
     /// The AI's paddle
     ai: Player,
     /// The score of the player
-    score: u32,
+    player_score: u32,
+    /// The score of the player
+    computer_score: u32,
     /// The game time
     time: f32,
 }
@@ -46,7 +48,8 @@ impl Game for Pong {
             ball_vel: Vec2::new(100.0, 100.0),
             player: Player { paddle_pos: 25.0 },
             ai: Player { paddle_pos: 25.0 },
-            score: 0,
+            player_score: 0,
+            computer_score: 0,
             time: 0.0,
         }
     }
@@ -127,6 +130,14 @@ impl Game for Pong {
         if self.ball_pos.x < 15.0 || self.ball_pos.x > console.graphics.width() - 15.0 - 12.0 {
             self.ball_vel.x = -self.ball_vel.x.abs()
                 * (self.ball_pos.x - (console.graphics.width() / 2.0)).signum();
+
+            if self.ball_pos.x < 15.0 {
+                self.computer_score += 1;
+                println!("computer score");
+            } else {
+                self.player_score += 1;
+                println!("human score");
+            }
         }
 
         // Clear the screen
@@ -156,6 +167,27 @@ impl Game for Pong {
         console.graphics.draw_rect(ai_paddle_rect, 0xFF0000, false);
 
         // Draw the score
+        for i in 0..self.player_score {
+            let rect=  Rect::new(
+                10.0 + (i as f32) * 5.0,
+                3.0,
+                3.0,
+                5.0,
+            );
+            console.graphics.draw_rect(rect, 0x00FF00, true);
+        }
+
+        for i in 0..self.computer_score {
+            let rect=  Rect::new(
+                (console.graphics.size.x as f32) - 10.0 - (i as f32) * 5.0,
+                3.0,
+                3.0,
+                5.0,
+            );
+            console.graphics.draw_rect(rect, 0xFF0000, true);
+
+        }
+
     }
 }
 

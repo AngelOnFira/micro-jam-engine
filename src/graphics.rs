@@ -1,9 +1,11 @@
 use line_drawing::Bresenham;
+use rusttype::{point, Font, Scale};
 use vek::{Rect, Vec2};
 
 pub struct Graphics<'tick> {
     pub size: Vec2<usize>,
     pub framebuffer: &'tick mut [u32],
+    pub font: &'tick Font<'tick>,
 }
 
 impl<'tick> Graphics<'tick> {
@@ -133,6 +135,33 @@ impl<'tick> Graphics<'tick> {
                 }
                 self.framebuffer[pos.y as usize * self.size.x + pos.x as usize] =
                     u32::from_le_bytes([p.0[2], p.0[1], p.0[0], 0]);
+            }
+        }
+    }
+
+    pub fn draw_text(&mut self, text: &str, y: i64, x: i64, size: f32, color: u32) {
+        let scale = Scale::uniform(size);
+        let v_metrics = self.font.v_metrics(scale);
+        let offset = point(x as f32, y as f32 + v_metrics.ascent);
+        let glyphs = self.font.layout(text, scale, offset);
+
+        for g in glyphs {
+            if let Some(bb) = g.pixel_bounding_box() {
+                g.draw(|x, y, v| {
+                    let x = x + bb.min.x as u32;
+                    let y = y + bb.min.y as u32;
+                    if x as usize >= self.size.x || y as usize > self.size.y {
+                        return;
+                    }
+
+                    let mut r = color >> 16 & 0xFF;
+                    let mut g = color >> 8 & 0xFF;
+                    let mut b = color & 0xFF;
+                    r = ((r as f32) * v) as u32;
+                    g = ((g as f32) * v) as u32;
+                    b = ((b as f32) * v) as u32;
+                    self.framebuffer[y as usize * self.size.x + x as usize] = r << 16 | g << 8 | b;
+                });
             }
         }
     }

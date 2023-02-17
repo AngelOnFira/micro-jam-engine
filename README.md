@@ -1,4 +1,6 @@
-# Micro Jam Engine (better name tbd)
+# Micro Jam Engine
+
+You can find all of the information about the Rust Nation Micro Game Jam [here](https://angelonfira.notion.site/angelonfira/Rust-Nation-Micro-Game-Jam-5f1e931ca1324007abf4acdcc316fe18)
 
 Navigate to an example like
 

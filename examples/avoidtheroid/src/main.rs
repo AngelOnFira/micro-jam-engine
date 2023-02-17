@@ -125,7 +125,7 @@ impl Game for AvoidTheRoid {
             FLAME_RADII[self.flame_radii_index],
             FLAME_COLORS[self.flame_color_index],
         );
-        console.graphics.draw_rect(player_rect, 0x888800, true);
+        console.graphics.draw_rect(player_rect, 0x0000cc, true);
 
         // Render the score as a bar, the outline shows the current best score.
         let score_height = (h - 10.0) * (self.score as f32) / (MAX_SCORE as f32);

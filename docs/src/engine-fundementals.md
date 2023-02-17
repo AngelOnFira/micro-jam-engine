@@ -44,8 +44,7 @@ method, and an `input` method. Micro Game Engine takes a different approach of
 just including all this data in one method, and letting the end user decide how
 and when to use it.
 
-For the sake of simplicity for demos, some of this book's "case studies" are
+For the sake of simplicity for demos, some of this book's "design docs" are
 implemented by just filling this function with all this separate logic. In your
 game, you might want to split this up into several methods, or even several
 modules. However, that's an implementation detail that is up to you.
-

@@ -15,14 +15,12 @@ use vek::*;
 
 mod graphics;
 pub mod input;
-mod utils;
 
 pub use image as _image;
 
 pub mod prelude {
     pub use crate::graphics::*;
     pub use crate::input::*;
-    pub use crate::utils::*;
     pub use crate::{sprite, Console, Game};
     pub use lazy_static::lazy_static;
     pub use vek::*;
@@ -255,4 +253,15 @@ fn run_with<G: Game>() {
             time = new_time;
         }
     });
+}
+
+pub fn set_panic_hook() {
+    // When the `console_error_panic_hook` feature is enabled, we can call the
+    // `set_panic_hook` function at least once during initialization, and then
+    // we will get better error messages if our code ever panics.
+    //
+    // For more details see
+    // https://github.com/rustwasm/console_error_panic_hook#readme
+    #[cfg(feature = "console_error_panic_hook")]
+    console_error_panic_hook::set_once();
 }

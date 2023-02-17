@@ -20,7 +20,7 @@ cargo run --release
 
 ## License
 
-<TODO> is free, open source and permissively licensed! Except where noted (below
+Micro Jam Engine is free, open source and permissively licensed! Except where noted (below
 and/or in individual files), all code in this repository is dual-licensed under
 either:
 

@@ -7,8 +7,6 @@
   - [Input](./engine-fundementals/input.md)
   - [Rendering](./engine-fundementals/rendering.md)
   - [Window](./engine-fundementals/window.md)
-- [Case Studies](./case-studies.md)
-  - [Case Study: Pong](./case-studies/pong.md)
+  - [Lying to you](./engine-fundementals/lying-to-you.md)
 - [Design Docs](./design-docs.md)
-  - [Design Doc: Game of Strife](./design-docs/game-of-strife.md)
-
+  - [Design Doc: Pong](./design-docs/pong.md)

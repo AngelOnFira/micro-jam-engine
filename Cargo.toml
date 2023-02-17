@@ -11,6 +11,7 @@ default = ["console_error_panic_hook"]
 
 [workspace]
 members = [
+    "examples/avoidtheroid",
     "examples/pong",
     "examples/shapes",
     "examples/cube",

@@ -150,7 +150,7 @@ impl<'tick> Graphics<'tick> {
                 g.draw(|x, y, v| {
                     let x = x + bb.min.x as u32;
                     let y = y + bb.min.y as u32;
-                    if x as usize >= self.size.x || y as usize > self.size.y {
+                    if x as usize >= self.size.x || y as usize > self.size.y || v <= 0.01 {
                         return;
                     }
 

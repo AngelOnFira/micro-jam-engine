@@ -82,7 +82,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="engine-fundementals.html"><strong aria-hidden="true">3.</strong> Engine Fundementals</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="engine-fundementals/game-loop.html"><strong aria-hidden="true">3.1.</strong> Game Loop</a></li><li class="chapter-item expanded "><a href="engine-fundementals/input.html"><strong aria-hidden="true">3.2.</strong> Input</a></li><li class="chapter-item expanded "><a href="engine-fundementals/rendering.html"><strong aria-hidden="true">3.3.</strong> Rendering</a></li><li class="chapter-item expanded "><a href="engine-fundementals/window.html"><strong aria-hidden="true">3.4.</strong> Window</a></li></ol></li><li class="chapter-item expanded "><a href="case-studies.html"><strong aria-hidden="true">4.</strong> Case Studies</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="case-studies/pong.html"><strong aria-hidden="true">4.1.</strong> Case Study: Pong</a></li></ol></li><li class="chapter-item expanded "><a href="design-docs.html"><strong aria-hidden="true">5.</strong> Design Docs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="design-docs/game-of-strife.html"><strong aria-hidden="true">5.1.</strong> Design Doc: Game of Strife</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="getting-started.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li class="chapter-item expanded "><a href="engine-fundementals.html"><strong aria-hidden="true">3.</strong> Engine Fundementals</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="engine-fundementals/game-loop.html"><strong aria-hidden="true">3.1.</strong> Game Loop</a></li><li class="chapter-item expanded "><a href="engine-fundementals/input.html"><strong aria-hidden="true">3.2.</strong> Input</a></li><li class="chapter-item expanded "><a href="engine-fundementals/rendering.html"><strong aria-hidden="true">3.3.</strong> Rendering</a></li><li class="chapter-item expanded "><a href="engine-fundementals/window.html"><strong aria-hidden="true">3.4.</strong> Window</a></li><li class="chapter-item expanded "><a href="engine-fundementals/lying-to-you.html"><strong aria-hidden="true">3.5.</strong> Lying to you</a></li></ol></li><li class="chapter-item expanded "><a href="design-docs.html"><strong aria-hidden="true">4.</strong> Design Docs</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="design-docs/pong.html"><strong aria-hidden="true">4.1.</strong> Design Doc: Pong</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -227,7 +227,7 @@ several methods. For example, you might have an <code>update</code> method, a <c
 method, and an <code>input</code> method. Micro Game Engine takes a different approach of
 just including all this data in one method, and letting the end user decide how
 and when to use it.</p>
-<p>For the sake of simplicity for demos, some of this book's &quot;case studies&quot; are
+<p>For the sake of simplicity for demos, some of this book's &quot;design docs&quot; are
 implemented by just filling this function with all this separate logic. In your
 game, you might want to split this up into several methods, or even several
 modules. However, that's an implementation detail that is up to you.</p>
@@ -235,12 +235,16 @@ modules. However, that's an implementation detail that is up to you.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="input"><a class="header" href="#input">Input</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="rendering"><a class="header" href="#rendering">Rendering</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="window"><a class="header" href="#window">Window</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="case-studies"><a class="header" href="#case-studies">Case Studies</a></h1>
-<p>This section covers some examples of classic games build in Micro Game Engine.
-The different case studies focus on teaching a few different concepts that are
-relavent to general game development, graphics, or Rust-specific topics.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="lying-to-you"><a class="header" href="#lying-to-you">Lying to you</a></h1>
+<p>In this engine, as well as in this documentation book, there are several places
+where you've been &quot;lied to&quot;. Well, not really a lie, but maybe not the full truth. This is primarily to make it easier to discuss
+concepts at a higher level, not fall down too many rabbit holes, and keep things
+less complex.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="design-docs"><a class="header" href="#design-docs">Design Docs</a></h1>
+<p>This section of the book takes a basic game implementation, and suggest some
+ways to tweak it to make it more interesting.</p>
 <p>Here are a list of the case studies and their topics:</p>
-<h2 id="pong---a-simple-2d-game-similar-to-tennis"><a class="header" href="#pong---a-simple-2d-game-similar-to-tennis"><a href="./case-studies/pong.html">Pong</a> - A simple 2D game similar to tennis</a></h2>
+<h2 id="pong---a-simple-2d-game-similar-to-tennis"><a class="header" href="#pong---a-simple-2d-game-similar-to-tennis"><a href="./design-docs/pong.html">Pong</a> - A simple 2D game similar to tennis</a></h2>
 <p>Topics covered:</p>
 <ul>
 <li>Rendering basic shapes</li>
@@ -248,11 +252,18 @@ relavent to general game development, graphics, or Rust-specific topics.</p>
 <li>Simple game state</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="case-study-pong"><a class="header" href="#case-study-pong">Case Study: Pong</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="design-docs"><a class="header" href="#design-docs">Design Docs</a></h1>
-<p>This section of the book will give you some ideas of games to try making. Each
-is designed to not contain too much complexity, though you may decide to
-expand on many of the described mechanics.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="design-doc-game-of-strife"><a class="header" href="#design-doc-game-of-strife">Design Doc: Game of Strife</a></h1>
+<p>We've built a version of Pong to work within this engine. It's very rudementary,
+and doesn't include all of Pong's mechanics, but it has basic input and physics.</p>
+<h2 id="mechanic-tweaks"><a class="header" href="#mechanic-tweaks">Mechanic tweaks</a></h2>
+<p>This section will highlight some ideas about what could be done on the existing
+mechanics to turn it into a different game.</p>
+<ul>
+<li><strong>Against the horde</strong>: Instead of a single ball, have a bunch of balls
+flying around the screen. The player can only move a single square paddle in
+both the x and y directions. The player needs to protect a zone in the middle
+of the screen.</li>
+<li><strong>Dodge the peeps</strong>: This time, the player </li>
+</ul>
 
                     </main>
 

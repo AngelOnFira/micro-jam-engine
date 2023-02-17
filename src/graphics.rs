@@ -15,10 +15,6 @@ impl<'tick> Graphics<'tick> {
         self.size.y as f32
     }
 
-    pub fn set_screen_size(&mut self, size: Vec2<usize>) {
-        self.size = size;
-    }
-
     // TODO: Methods for drawing shapes, sprites, perhaps even triangles, as
     // well as getting access to the framebuffer
     pub fn clear(&mut self, color: u32) {
@@ -110,18 +106,29 @@ impl<'tick> Graphics<'tick> {
         }
     }
 
+    /// Draw the given sprite at a position and with a frame index.
+    ///
+    /// If the frame index is greater than the number of frames, it will be looped animation will be looped.
+    ///
+    /// See [`sprite`] for information about loading sprites.
     pub fn draw_sprite(&mut self, sprite: &Sprite, pos: Vec2<i64>, frame: usize) {
-        let frame = frame % sprite.count;
-        let w = sprite.img.width() / sprite.count as u32;
+        let frame = frame % sprite.frames;
+        let w = sprite.img.width() / sprite.frames as u32;
 
         for j in 0..sprite.img.height() {
             for i in 0..w {
                 let p = sprite.img.get_pixel(i + w * frame as u32, j);
-                if p.0[3] == 0 { continue; }
+                if p.0[3] == 0 {
+                    continue;
+                }
 
                 let pos = Vec2::new(i as i64, j as i64) - sprite.center + pos;
                 // If this pixel is outside the framebuffer, skip it
-                if pos.x < 0 || pos.y < 0 || pos.x >= self.size.x as i64 || pos.y >= self.size.y as i64 {
+                if pos.x < 0
+                    || pos.y < 0
+                    || pos.x >= self.size.x as i64
+                    || pos.y >= self.size.y as i64
+                {
                     continue;
                 }
                 self.framebuffer[pos.y as usize * self.size.x + pos.x as usize] =
@@ -131,39 +138,61 @@ impl<'tick> Graphics<'tick> {
     }
 }
 
+/// See [`sprite`].
 pub struct Sprite {
     img: image::RgbaImage,
     center: Vec2<i64>,
-    count: usize,
+    frames: usize,
 }
 
 impl Sprite {
-    pub fn from_image(img: image::RgbaImage, center: Vec2<i64>, count: usize) -> Self {
-        Self { img, center, count }
+    pub fn from_image(img: image::RgbaImage, center: Vec2<i64>, frames: usize) -> Self {
+        Self {
+            img,
+            center,
+            frames,
+        }
     }
 }
 
+/// A macro that can be used to load a sprite into the game at compilation time.
+///
+/// The `center` parameter is of type [`Vec2<i64>`] and denotes the centre of the sprite, in pixels from the top-left
+/// corner.
+///
+/// The `frames` parameter denotes the number of animation frames in the sprite. Frames can be added by extending the
+/// image file horizontally: for example, a 16x16 sprite with 10 frames of animation would be 160x16 pixels in size.
+///
+/// # Example
+///
+/// ```ignore
+/// lazy_static! {
+///     static ref PACMAN: Sprite = sprite!("../pacman.png", center: Vec2::new(16, 16), frames: 6);
+///     static ref TREAT: Sprite = sprite!("../treat.png");
+///     static ref TILESET: Sprite = sprite!("../tileset.png", frames: 16);
+/// }
+/// ```
 #[macro_export]
 macro_rules! sprite {
     (
         $s:literal
         $(, center: $center:expr)?
-        $(, count: $count:expr)?
+        $(, frames: $frames:expr)?
         $(,)?
     ) => {
         {
             let s: &str = $s;
             let center = Vec2::zero();
             $(let center = $center;)?
-            let count = 1;
-            $(let count = ($count).max(1);)?
+            let frames = 1;
+            $(let frames = ($frames).max(1);)?
             Sprite::from_image(
                 $crate::_image::load_from_memory_with_format(
                     ::std::include_bytes!($s),
                     $crate::_image::ImageFormat::from_path(s).unwrap(),
                 ).unwrap().into_rgba8(),
                 center,
-                count,
+                frames,
             )
         }
     };

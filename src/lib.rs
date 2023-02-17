@@ -23,7 +23,7 @@ pub mod prelude {
     pub use crate::graphics::*;
     pub use crate::input::*;
     pub use crate::utils::*;
-    pub use crate::{Game, Console, sprite};
+    pub use crate::{sprite, Console, Game};
     pub use lazy_static::lazy_static;
     pub use vek::*;
     pub use winit;
@@ -67,7 +67,9 @@ pub struct Console<'tick, G: Game> {
 }
 
 impl<'tick, G: Game> Console<'tick, G> {
-    pub fn tick(&self) -> usize { self.tick }
+    pub fn tick(&self) -> usize {
+        self.tick
+    }
 }
 
 pub struct Audio;
@@ -98,7 +100,7 @@ fn run_with<G: Game>() {
 
     let window = WindowBuilder::new()
         .with_title(G::TITLE)
-        .with_inner_size(winit::dpi::LogicalSize::new(
+        .with_inner_size(winit::dpi::PhysicalSize::new(
             (W * SCALE) as f64,
             (H * SCALE) as f64,
         ))

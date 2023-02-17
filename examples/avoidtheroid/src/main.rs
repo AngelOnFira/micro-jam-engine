@@ -7,6 +7,8 @@ struct AvoidTheRoid {
     player_x: f32,
     score: i64,
     best_score: i64,
+    flame_color_index: usize,
+    flame_radii_index: usize,
 }
 
 const PLAYER_SPEED: f32 = 50.0;
@@ -19,6 +21,9 @@ const ROID_SPEED: f32 = 30.0;
 const SPEED_FACTOR: f32 = 0.5;
 const MAX_SCORE: i64 = 1000;
 
+const FLAME_COLORS: &'static [u32] = &[0xffff00, 0xff0000, 0xff8800];
+const FLAME_RADII: &'static [i64] = &[3, 6, 5, 2, 4];
+
 impl Game for AvoidTheRoid {
     const TITLE: &'static str = "Avoid the 'Roid";
     type SaveData = ();
@@ -27,15 +32,17 @@ impl Game for AvoidTheRoid {
         Self {
             roids: Vec::new(),
             rng: thread_rng(),
-            player_x: (console.graphics.size.x as f32) / 2.0,
+            player_x: (console.graphics.width() as f32) / 2.0,
             score: 0,
             best_score: 0,
+            flame_color_index: 0,
+            flame_radii_index: 0,
         }
     }
 
     fn tick(&mut self, dt: f32, console: &mut Console<Self>) {
-        let w = console.graphics.size.x as f32;
-        let h = console.graphics.size.y as f32;
+        let w = console.graphics.width();
+        let h = console.graphics.height();
 
         // Input:
 
@@ -52,7 +59,7 @@ impl Game for AvoidTheRoid {
 
         let player_rect = Rect::new(
             self.player_x - PLAYER_SIZE / 2.0,
-            h - PLAYER_SIZE,
+            h - PLAYER_SIZE - 10.0,
             PLAYER_SIZE,
             PLAYER_SIZE,
         );
@@ -106,6 +113,18 @@ impl Game for AvoidTheRoid {
             console.graphics.draw_rect(*roid_rect, 0xffffff, false);
         }
 
+        self.flame_color_index += 1;
+        self.flame_color_index %= FLAME_COLORS.len();
+        self.flame_radii_index += 1;
+        self.flame_radii_index %= FLAME_RADII.len();
+        console.graphics.draw_circle(
+            Vec2::new(
+                self.player_x as i64,
+                (player_rect.y + player_rect.h + 1.0) as i64,
+            ),
+            FLAME_RADII[self.flame_radii_index],
+            FLAME_COLORS[self.flame_color_index],
+        );
         console.graphics.draw_rect(player_rect, 0x888800, true);
 
         // Render the score as a bar, the outline shows the current best score.

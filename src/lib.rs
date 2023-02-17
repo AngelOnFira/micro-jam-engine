@@ -2,6 +2,7 @@ use graphics::Graphics;
 use input::InputEvent;
 use prelude::Input;
 
+use serde::{de::DeserializeOwned, Serialize};
 use std::marker::PhantomData;
 use wasm_bindgen::prelude::*;
 use winit::event::{Event, WindowEvent};
@@ -47,7 +48,7 @@ pub fn greet() {
 
 pub trait Game: Sized + 'static {
     const TITLE: &'static str;
-    type SaveData: Default;
+    type SaveData: Default + Serialize + DeserializeOwned;
 
     fn init(console: &mut Console<Self>) -> Self;
 
@@ -82,12 +83,28 @@ pub struct Save<S> {
     phantom: PhantomData<S>,
 }
 
-impl<S> Save<S> {
+impl<S: Default + Serialize + DeserializeOwned> Save<S> {
     pub fn read(&mut self) -> S {
-        todo!()
+        #[cfg(target_arch = "wasm32")]
+        {
+            S::default()
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            std::fs::File::open("save.bin")
+                .map_err(bincode::Error::from)
+                .and_then(|file| bincode::deserialize_from(file))
+                .unwrap_or_default()
+        }
     }
-    pub fn write(&mut self, _save: S) {
-        todo!()
+
+    pub fn write(&mut self, save: S) -> Result<(), String> {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let mut f = std::fs::File::create("save.bin").map_err(|e| e.to_string())?;
+            bincode::serialize_into(&mut f, &save).map_err(|e| e.to_string())?;
+        }
+        Ok(())
     }
 }
 
@@ -103,7 +120,7 @@ fn run_with<G: Game>() {
         .build(&event_loop)
         .unwrap();
 
-    let scale = (4.0 * window.scale_factor()) as usize;
+    let scale = (4.0 * window.scale_factor()).max(1.0) as usize;
 
     window.set_inner_size(winit::dpi::PhysicalSize::new(
         (W * scale) as f64,
@@ -130,7 +147,7 @@ fn run_with<G: Game>() {
 
     let window_size = window.inner_size();
     let mut framebuffer = vec![0; W * H];
-    let mut framebuffer_actual = vec![0; window_size.width as usize * window_size.height as usize];
+    let mut framebuffer_actual = vec![0; W * H * scale * scale];
     let _flag = false;
 
     let mut time = instant::Instant::now();
@@ -165,9 +182,9 @@ fn run_with<G: Game>() {
                 let (width, height) = (sz.width as usize, sz.height as usize);
 
                 // Resize the off-screen buffer if the window size has changed
-                if framebuffer_actual.len() != width * height {
-                    framebuffer_actual.resize(width * height, 0);
-                }
+                // if framebuffer_actual.len() != width * height {
+                //     framebuffer_actual.resize(width * height, 0);
+                // }
 
                 for j in 0..H {
                     for j2 in 0..scale {
@@ -179,7 +196,9 @@ fn run_with<G: Game>() {
                 }
 
                 // Blit the offscreen buffer to the window's client area
-                surface.set_buffer(&framebuffer_actual, sz.width as u16, sz.height as u16);
+                if framebuffer_actual.len() == width * height {
+                    surface.set_buffer(&framebuffer_actual, sz.width as u16, sz.height as u16);
+                }
             }
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,

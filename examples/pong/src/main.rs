@@ -72,8 +72,7 @@ impl Game for Pong {
             self.player.paddle_pos -= 100.0 * dt;
         }
 
-        if console.input.input_helper.key_held(VirtualKeyCode::S)
-            || console.input.input_helper.key_held(VirtualKeyCode::Down)
+        if console.input.key_held(VirtualKeyCode::S) || console.input.key_held(VirtualKeyCode::Down)
         {
             self.player.paddle_pos += 100.0 * dt;
         }

@@ -1,10 +1,19 @@
+use std::ops::Deref;
 use winit::{dpi::PhysicalPosition, event::KeyboardInput};
 use winit_input_helper::WinitInputHelper;
 
 #[derive(Clone)]
 pub struct Input {
-    pub input_queue: Vec<InputEvent>,
-    pub input_helper: WinitInputHelper,
+    pub(crate) input_queue: Vec<InputEvent>,
+    pub(crate) input_helper: WinitInputHelper,
+}
+
+impl Deref for Input {
+    type Target = WinitInputHelper;
+
+    fn deref(&self) -> &Self::Target {
+        &self.input_helper
+    }
 }
 
 impl Input {

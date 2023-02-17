@@ -156,6 +156,7 @@ impl Game for Pong {
         console.graphics.draw_rect(ai_paddle_rect, 0xFF0000, false);
 
         // Draw the score
+        console.graphics.draw_text("Rust", 0, 0, 40.0, 0xFF0000);
     }
 }
 

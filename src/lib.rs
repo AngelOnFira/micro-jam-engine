@@ -2,6 +2,7 @@ use graphics::Graphics;
 use input::InputEvent;
 use prelude::Input;
 
+use rusttype::Font;
 use serde::{de::DeserializeOwned, Serialize};
 use std::marker::PhantomData;
 use wasm_bindgen::prelude::*;
@@ -157,11 +158,16 @@ fn run_with<G: Game>() {
         input_helper: input_helper.clone(),
     };
 
+    let font = {
+        let font_data = include_bytes!("../fonts/OpenSans-Italic.ttf");
+        Font::try_from_bytes(font_data).unwrap()
+    };
     let mut game = G::init(&mut Console {
         input: game_input.clone(),
         graphics: Graphics {
             size: Vec2::new(W, H),
             framebuffer: &mut framebuffer,
+            font: &font,
         },
         audio: Audio,
         save: Save {
@@ -254,6 +260,7 @@ fn run_with<G: Game>() {
                     graphics: Graphics {
                         size: Vec2::new(W, H),
                         framebuffer: &mut framebuffer,
+                        font: &font,
                     },
                     audio: Audio,
                     save: Save {

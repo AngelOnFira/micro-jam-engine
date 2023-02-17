@@ -46,6 +46,8 @@ js-sys = "0.3"
 line_drawing = "1.0.0"
 winit_input_helper = "0.13.0"
 
+rusttype = "0.9.3"
+
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
 
